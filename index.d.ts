@@ -5,4221 +5,3408 @@
  */
 
 
-import { EnvironmentInjector } from '@angular/core';
-import { EnvironmentProviders } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+import { DoCheck } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import * as i0 from '@angular/core';
 import { InjectionToken } from '@angular/core';
-import { ModuleWithProviders } from '@angular/core';
+import { Injector } from '@angular/core';
+import { IterableDiffers } from '@angular/core';
+import { KeyValueDiffers } from '@angular/core';
+import { NgIterable } from '@angular/core';
+import { NgModuleFactory } from '@angular/core';
 import { Observable } from 'rxjs';
+import { OnChanges } from '@angular/core';
+import { OnDestroy } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { PipeTransform } from '@angular/core';
 import { Provider } from '@angular/core';
-import { XhrFactory } from '@angular/common';
+import { Renderer2 } from '@angular/core';
+import { SimpleChanges } from '@angular/core';
+import { Subscribable } from 'rxjs';
+import { SubscriptionLike } from 'rxjs';
+import { TemplateRef } from '@angular/core';
+import { TrackByFunction } from '@angular/core';
+import { Type } from '@angular/core';
+import { Version } from '@angular/core';
+import { ViewContainerRef } from '@angular/core';
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType.Html): value is SafeHtml;
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType.ResourceUrl): value is SafeResourceUrl;
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType.Script): value is SafeScript;
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType.Style): value is SafeStyle;
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType.Url): value is SafeUrl;
+
+declare function allowSanitizationBypassAndThrow(value: any, type: BypassType): boolean;
 
 /**
- * Uses `fetch` to send requests to a backend server.
- *
- * This `FetchBackend` requires the support of the
- * [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) which is available on all
- * supported browsers and on Node.js v18 or later.
- *
- * @see {@link HttpHandler}
- *
- * @publicApi
- * @developerPreview
- */
-export declare class FetchBackend implements HttpBackend {
-    private readonly fetchImpl;
-    private readonly ngZone;
-    handle(request: HttpRequest<any>): Observable<HttpEvent<any>>;
-    private doRequest;
-    private parseBody;
-    private createRequestInit;
-    private concatChunks;
-    static ɵfac: i0.ɵɵFactoryDeclaration<FetchBackend, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<FetchBackend>;
-}
-
-/**
- * A multi-provider token that represents the array of registered
- * `HttpInterceptor` objects.
- *
- * @publicApi
- */
-export declare const HTTP_INTERCEPTORS: InjectionToken<HttpInterceptor[]>;
-
-/**
- * A final `HttpHandler` which will dispatch the request via browser HTTP APIs to a backend.
- *
- * Interceptors sit between the `HttpClient` interface and the `HttpBackend`.
- *
- * When injected, `HttpBackend` dispatches requests directly to the backend, without going
- * through the interceptor chain.
- *
- * @publicApi
- */
-export declare abstract class HttpBackend implements HttpHandler {
-    abstract handle(req: HttpRequest<any>): Observable<HttpEvent<any>>;
-}
-
-/**
- * Performs HTTP requests.
- * This service is available as an injectable class, with methods to perform HTTP requests.
- * Each request method has multiple signatures, and the return type varies based on
- * the signature that is called (mainly the values of `observe` and `responseType`).
- *
- * Note that the `responseType` *options* value is a String that identifies the
- * single data type of the response.
- * A single overload version of the method handles each response type.
- * The value of `responseType` cannot be a union, as the combined signature could imply.
-
- *
- * @usageNotes
- * Sample HTTP requests for the [Tour of Heroes](/tutorial/tour-of-heroes/toh-pt0) application.
- *
- * ### HTTP Request Example
- *
- * ```
- *  // GET heroes whose name contains search term
- * searchHeroes(term: string): observable<Hero[]>{
- *
- *  const params = new HttpParams({fromString: 'name=term'});
- *    return this.httpClient.request('GET', this.heroesUrl, {responseType:'json', params});
- * }
- * ```
- *
- * Alternatively, the parameter string can be used without invoking HttpParams
- * by directly joining to the URL.
- * ```
- * this.httpClient.request('GET', this.heroesUrl + '?' + 'name=term', {responseType:'json'});
- * ```
- *
- *
- * ### JSONP Example
- * ```
- * requestJsonp(url, callback = 'callback') {
- *  return this.httpClient.jsonp(this.heroesURL, callback);
- * }
- * ```
- *
- * ### PATCH Example
- * ```
- * // PATCH one of the heroes' name
- * patchHero (id: number, heroName: string): Observable<{}> {
- * const url = `${this.heroesUrl}/${id}`;   // PATCH api/heroes/42
- *  return this.httpClient.patch(url, {name: heroName}, httpOptions)
- *    .pipe(catchError(this.handleError('patchHero')));
- * }
- * ```
- *
- * @see [HTTP Guide](guide/understanding-communicating-with-http)
- * @see [HTTP Request](api/common/http/HttpRequest)
- *
- * @publicApi
- */
-export declare class HttpClient {
-    private handler;
-    constructor(handler: HttpHandler);
-    /**
-     * Sends an `HttpRequest` and returns a stream of `HttpEvent`s.
-     *
-     * @return An `Observable` of the response, with the response body as a stream of `HttpEvent`s.
-     */
-    request<R>(req: HttpRequest<any>): Observable<HttpEvent<R>>;
-    /**
-     * Constructs a request that interprets the body as an `ArrayBuffer` and returns the response in
-     * an `ArrayBuffer`.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a request that interprets the body as a blob and returns
-     * the response as a blob.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type `Blob`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a request that interprets the body as a text string and
-     * returns a string value.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a request that interprets the body as an `ArrayBuffer` and returns the
-     * the full event stream.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as an array of `HttpEvent`s for
-     * the request.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        observe: 'events';
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a request that interprets the body as a `Blob` and returns
-     * the full event stream.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body of type `Blob`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a request which interprets the body as a text string and returns the full event
-     * stream.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body of type string.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object and returns the full
-     * event stream.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the  request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body of type `Object`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        reportProgress?: boolean;
-        observe: 'events';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<any>>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object and returns the full
-     * event stream.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body of type `R`.
-     */
-    request<R>(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        reportProgress?: boolean;
-        observe: 'events';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<R>>;
-    /**
-     * Constructs a request which interprets the body as an `ArrayBuffer`
-     * and returns the full `HttpResponse`.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body as an `ArrayBuffer`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a request which interprets the body as a `Blob` and returns the full `HttpResponse`.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of type `Blob`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a request which interprets the body as a text stream and returns the full
-     * `HttpResponse`.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the HTTP response, with the response body of type string.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object and returns the full
-     * `HttpResponse`.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the full `HttpResponse`,
-     * with the response body of type `Object`.
-     */
-    request(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        reportProgress?: boolean;
-        observe: 'response';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object and returns
-     * the full `HttpResponse` with the response body in the requested type.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return  An `Observable` of the full `HttpResponse`, with the response body of type `R`.
-     */
-    request<R>(method: string, url: string, options: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        reportProgress?: boolean;
-        observe: 'response';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<R>>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object and returns the full
-     * `HttpResponse` as a JavaScript object.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of type `Object`.
-     */
-    request(method: string, url: string, options?: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        reportProgress?: boolean;
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a request which interprets the body as a JavaScript object
-     * with the response body of the requested type.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of type `R`.
-     */
-    request<R>(method: string, url: string, options?: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        responseType?: 'json';
-        reportProgress?: boolean;
-        withCredentials?: boolean;
-    }): Observable<R>;
-    /**
-     * Constructs a request where response type and requested observable are not known statically.
-     *
-     * @param method  The HTTP method.
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the requested response, with body of type `any`.
-     */
-    request(method: string, url: string, options?: {
-        body?: any;
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        observe?: 'body' | 'events' | 'response';
-        reportProgress?: boolean;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-    }): Observable<any>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as an `ArrayBuffer`
-     *  and returns the response as an `ArrayBuffer`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return  An `Observable` of the response body as an `ArrayBuffer`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a `Blob` and returns
-     * the response as a `Blob`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response body as a `Blob`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a text string and returns
-     * a string.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<string>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as an `ArrayBuffer`
-     *  and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with response body as an `ArrayBuffer`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a `Blob`
-     *  and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request, with the response body as a
-     * `Blob`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a text string
-     * and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with the response
-     * body of type string.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with response body of
-     * type `Object`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a `DELETE`request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request, with a response
-     * body in the requested type.
-     */
-    delete<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | (string | number | boolean)[];
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as an `ArrayBuffer` and returns
-     *  the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the full `HttpResponse`, with the response body as an `ArrayBuffer`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a `Blob` and returns the full
-     * `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of type `Blob`.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as a text stream and
-     *  returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the full `HttpResponse`, with the response body of type string.
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `DELETE` request the interprets the body as a JavaScript object and returns
-     * the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of type `Object`.
-     *
-     */
-    delete(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with the response body of the requested type.
-     */
-    delete<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<HttpResponse<T>>;
-    /**
-     * Constructs a `DELETE` request that interprets the body as JSON and
-     * returns the response body as an object parsed from JSON.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type `Object`.
-     */
-    delete(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<Object>;
-    /**
-     * Constructs a DELETE request that interprets the body as JSON and returns
-     * the response in a given type.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with response body in the requested type.
-     */
-    delete<T>(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-        body?: any | null;
-    }): Observable<T>;
-    /**
-     * Constructs a `GET` request that interprets the body as an `ArrayBuffer` and returns the
-     * response in an `ArrayBuffer`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `GET` request that interprets the body as a `Blob`
-     * and returns the response as a `Blob`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `GET` request that interprets the body as a text string
-     * and returns the response as a string value.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a `GET` request that interprets the body as an `ArrayBuffer` and returns
-     *  the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with the response
-     * body as an `ArrayBuffer`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `GET` request that interprets the body as a `Blob` and
-     * returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `GET` request that interprets the body as a text string and returns
-     * the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type `Object`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON and returns the full
-     * event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with a response body in the requested type.
-     */
-    get<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a `GET` request that interprets the body as an `ArrayBuffer` and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `GET` request that interprets the body as a `Blob` and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a `Blob`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `GET` request that interprets the body as a text stream and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body of type string.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the full `HttpResponse`,
-     * with the response body of type `Object`.
-     */
-    get(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the full `HttpResponse` for the request,
-     * with a response body in the requested type.
-     */
-    get<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON and
-     * returns the response body as an object parsed from JSON.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     *
-     * @return An `Observable` of the response body as a JavaScript object.
-     */
-    get(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a `GET` request that interprets the body as JSON and returns
-     * the response body in a given type.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse`, with a response body in the requested type.
-     */
-    get<T>(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as an `ArrayBuffer` and
-     * returns the response as an `ArrayBuffer`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as a `Blob` and returns
-     * the response as a `Blob`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return  An `Observable` of the response, with the response body as a `Blob`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as a text string and returns the response
-     * as a string value.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as an  `ArrayBuffer`
-     *  and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as a `Blob` and
-     * returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as a `Blob`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as a text string
-     * and returns the full event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with the response body of type
-     * string.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as JSON
-     * and returns the full HTTP event stream.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with a response body of
-     * type `Object`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as JSON and
-     * returns the full event stream.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with a response body in the requested type.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     */
-    head<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as an `ArrayBuffer`
-     *  and returns the full HTTP response.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as a `Blob` and returns
-     * the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a blob.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as text stream
-     * and returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body of type string.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as JSON and
-     * returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body of type `Object`.
-     */
-    head(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body of the requested type.
-     */
-    head<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-
-     * Constructs a `HEAD` request that interprets the body as JSON and
-     * returns the response body as an object parsed from JSON.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the response, with the response body as an object parsed from JSON.
-     */
-    head(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a `HEAD` request that interprets the body as JSON and returns
-     * the response in a given type.
-     *
-     * @param url     The endpoint URL.
-     * @param options The HTTP options to send with the request.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body of the given type.
-     */
-    head<T>(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    /**
-     * Constructs a `JSONP` request for the given URL and name of the callback parameter.
-     *
-     * @param url The resource URL.
-     * @param callbackParam The callback function name.
-     *
-     * @return An `Observable` of the response object, with response body as an object.
-     */
-    jsonp(url: string, callbackParam: string): Observable<Object>;
-    /**
-     * Constructs a `JSONP` request for the given URL and name of the callback parameter.
-     *
-     * @param url The resource URL.
-     * @param callbackParam The callback function name.
-     *
-     * You must install a suitable interceptor, such as one provided by `HttpClientJsonpModule`.
-     * If no such interceptor is reached,
-     * then the `JSONP` request can be rejected by the configured backend.
-     *
-     * @return An `Observable` of the response object, with response body in the requested type.
-     */
-    jsonp<T>(url: string, callbackParam: string): Observable<T>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as an
-     * `ArrayBuffer` and returns the response as an `ArrayBuffer`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as a `Blob` and returns
-     * the response as a `Blob`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as a text string and
-     * returns a string value.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body of type string.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as an `ArrayBuffer`
-     *  and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return  An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as a `Blob` and
-     * returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as a `Blob`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as a text string
-     * and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with the response body of type string.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request with the response
-     * body of type `Object`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as JSON and
-     * returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with a response body in the requested type.
-     */
-    options<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as an `ArrayBuffer`
-     *  and returns the full HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as a `Blob`
-     *  and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a `Blob`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as text stream
-     * and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body of type string.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body of type `Object`.
-     */
-    options(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as JSON and
-     * returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body in the requested type.
-     */
-    options<T>(url: string, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-
-     * Constructs an `OPTIONS` request that interprets the body as JSON and returns the
-     * response body as an object parsed from JSON.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as an object parsed from JSON.
-     */
-    options(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs an `OPTIONS` request that interprets the body as JSON and returns the
-     * response in a given type.
-     *
-     * @param url The endpoint URL.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse`, with a response body of the given type.
-     */
-    options<T>(url: string, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as an `ArrayBuffer` and returns
-     * the response as an `ArrayBuffer`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a `Blob` and returns the response
-     * as a `Blob`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a text string and
-     * returns the response as a string value.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with a response body of type string.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as an `ArrayBuffer` and
-     *  returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a `Blob`
-     *  and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request, with the
-     * response body as `Blob`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a text string and
-     * returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request, with a
-     * response body of type string.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with a response body of type `Object`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as JSON
-     * and returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of all the `HttpEvent`s for the request,
-     * with a response body in the requested type.
-     */
-    patch<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as an `ArrayBuffer`
-     *  and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a `Blob` and returns the full
-     * `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a `Blob`.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as a text stream and returns the
-     * full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request,
-     * with a response body of type string.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body in the requested type.
-     */
-    patch(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body in the given type.
-     */
-    patch<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-
-     * Constructs a `PATCH` request that interprets the body as JSON and
-     * returns the response body as an object parsed from JSON.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as an object parsed from JSON.
-     */
-    patch(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a `PATCH` request that interprets the body as JSON
-     * and returns the response in a given type.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to edit.
-     * @param options HTTP options.
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request,
-     * with a response body in the given type.
-     */
-    patch<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    /**
-     * Constructs a `POST` request that interprets the body as an `ArrayBuffer` and returns
-     * an `ArrayBuffer`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options.
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `POST` request that interprets the body as a `Blob` and returns the
-     * response as a `Blob`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `POST` request that interprets the body as a text string and
-     * returns the response as a string value.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with a response body of type string.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a `POST` request that interprets the body as an `ArrayBuffer` and
-     * returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `POST` request that interprets the body as a `Blob`
-     * and returns the response in an observable of the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with the response body as `Blob`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `POST` request that interprets the body as a text string and returns the full
-     * event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return  An `Observable` of all `HttpEvent`s for the request,
-     * with a response body of type string.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a POST request that interprets the body as JSON and returns the full
-     * event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return  An `Observable` of all `HttpEvent`s for the request,
-     * with a response body of type `Object`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a POST request that interprets the body as JSON and returns the full
-     * event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with a response body in the requested type.
-     */
-    post<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a POST request that interprets the body as an `ArrayBuffer`
-     *  and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request, with the response body as an
-     * `ArrayBuffer`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `POST` request that interprets the body as a `Blob` and returns the full
-     * `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a `Blob`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `POST` request that interprets the body as a text stream and returns
-     * the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request,
-     * with a response body of type string.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `POST` request that interprets the body as JSON
-     * and returns the full `HttpResponse`.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request, with a response body of type
-     * `Object`.
-     */
-    post(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `POST` request that interprets the body as JSON and returns the
-     * full `HttpResponse`.
-     *
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request, with a response body in the
-     * requested type.
-     */
-    post<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-     * Constructs a `POST` request that interprets the body as JSON
-     * and returns the response body as an object parsed from JSON.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with the response body as an object parsed from JSON.
-     */
-    post(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a `POST` request that interprets the body as JSON
-     * and returns an observable of the response.
-     *
-     * @param url The endpoint URL.
-     * @param body The content to replace with.
-     * @param options HTTP options
-     *
-     * @return  An `Observable` of the `HttpResponse` for the request, with a response body in the
-     * requested type.
-     */
-    post<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    /**
-     * Constructs a `PUT` request that interprets the body as an `ArrayBuffer` and returns the
-     * response as an `ArrayBuffer`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with the response body as an `ArrayBuffer`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<ArrayBuffer>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a `Blob` and returns
-     * the response as a `Blob`.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with the response body as a `Blob`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<Blob>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a text string and
-     * returns the response as a string value.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response, with a response body of type string.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<string>;
-    /**
-     * Constructs a `PUT` request that interprets the body as an `ArrayBuffer` and
-     * returns the full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as an `ArrayBuffer`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<ArrayBuffer>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a `Blob` and returns the full event
-     * stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with the response body as a `Blob`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Blob>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a text string and returns the full event
-     * stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with a response body
-     * of type string.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<string>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as JSON and returns the full
-     * event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request, with a response body of
-     * type `Object`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<Object>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as JSON and returns the
-     * full event stream.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of all `HttpEvent`s for the request,
-     * with a response body in the requested type.
-     */
-    put<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'events';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpEvent<T>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as an
-     * `ArrayBuffer` and returns an observable of the full HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request, with the response body as an
-     * `ArrayBuffer`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'arraybuffer';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<ArrayBuffer>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a `Blob` and returns the
-     * full HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with the response body as a `Blob`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'blob';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Blob>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as a text stream and returns the
-     * full HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request, with a response body of type
-     * string.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType: 'text';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<string>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as JSON and returns the full
-     * HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request, with a response body
-     * of type 'Object`.
-     */
-    put(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<Object>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as an instance of the requested type and
-     * returns the full HTTP response.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the `HttpResponse` for the request,
-     * with a response body in the requested type.
-     */
-    put<T>(url: string, body: any | null, options: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        observe: 'response';
-        context?: HttpContext;
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<HttpResponse<T>>;
-    /**
-     * Constructs a `PUT` request that interprets the body as JSON
-     * and returns an observable of JavaScript object.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the response as a JavaScript object.
-     */
-    put(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<Object>;
-    /**
-     * Constructs a `PUT` request that interprets the body as an instance of the requested type
-     * and returns an observable of the requested type.
-     *
-     * @param url The endpoint URL.
-     * @param body The resources to add/update.
-     * @param options HTTP options
-     *
-     * @return An `Observable` of the requested type.
-     */
-    put<T>(url: string, body: any | null, options?: {
-        headers?: HttpHeaders | {
-            [header: string]: string | string[];
-        };
-        context?: HttpContext;
-        observe?: 'body';
-        params?: HttpParams | {
-            [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-        };
-        reportProgress?: boolean;
-        responseType?: 'json';
-        withCredentials?: boolean;
-    }): Observable<T>;
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpClient, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<HttpClient>;
-}
-
-/**
- * Configures the [dependency injector](guide/glossary#injector) for `HttpClient`
- * with supporting services for JSONP.
- * Without this module, Jsonp requests reach the backend
- * with method JSONP, where they are rejected.
- *
- * @publicApi
- */
-export declare class HttpClientJsonpModule {
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpClientJsonpModule, never>;
-    static ɵmod: i0.ɵɵNgModuleDeclaration<HttpClientJsonpModule, never, never, never>;
-    static ɵinj: i0.ɵɵInjectorDeclaration<HttpClientJsonpModule>;
-}
-
-/**
- * Configures the [dependency injector](guide/glossary#injector) for `HttpClient`
- * with supporting services for XSRF. Automatically imported by `HttpClientModule`.
- *
- * You can add interceptors to the chain behind `HttpClient` by binding them to the
- * multiprovider for built-in [DI token](guide/glossary#di-token) `HTTP_INTERCEPTORS`.
- *
- * @publicApi
- */
-export declare class HttpClientModule {
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpClientModule, never>;
-    static ɵmod: i0.ɵɵNgModuleDeclaration<HttpClientModule, never, never, never>;
-    static ɵinj: i0.ɵɵInjectorDeclaration<HttpClientModule>;
-}
-
-/**
- * Configures XSRF protection support for outgoing requests.
- *
- * For a server that supports a cookie-based XSRF protection system,
- * use directly to configure XSRF protection with the correct
- * cookie and header names.
- *
- * If no names are supplied, the default cookie name is `XSRF-TOKEN`
- * and the default header name is `X-XSRF-TOKEN`.
- *
- * @publicApi
- */
-export declare class HttpClientXsrfModule {
-    /**
-     * Disable the default XSRF protection.
-     */
-    static disable(): ModuleWithProviders<HttpClientXsrfModule>;
-    /**
-     * Configure XSRF protection.
-     * @param options An object that can specify either or both
-     * cookie name or header name.
-     * - Cookie name default is `XSRF-TOKEN`.
-     * - Header name default is `X-XSRF-TOKEN`.
-     *
-     */
-    static withOptions(options?: {
-        cookieName?: string;
-        headerName?: string;
-    }): ModuleWithProviders<HttpClientXsrfModule>;
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpClientXsrfModule, never>;
-    static ɵmod: i0.ɵɵNgModuleDeclaration<HttpClientXsrfModule, never, never, never>;
-    static ɵinj: i0.ɵɵInjectorDeclaration<HttpClientXsrfModule>;
-}
-
-/**
- * Http context stores arbitrary user defined values and ensures type safety without
- * actually knowing the types. It is backed by a `Map` and guarantees that keys do not clash.
- *
- * This context is mutable and is shared between cloned requests unless explicitly specified.
+ * A predefined [DI token](guide/glossary#di-token) for the base href
+ * to be used with the `PathLocationStrategy`.
+ * The base href is the URL prefix that should be preserved when generating
+ * and recognizing URLs.
  *
  * @usageNotes
  *
- * ### Usage Example
+ * The following example shows how to use this token to configure the root app injector
+ * with a base href value, so that the DI framework can supply the dependency anywhere in the app.
  *
  * ```typescript
- * // inside cache.interceptors.ts
- * export const IS_CACHE_ENABLED = new HttpContextToken<boolean>(() => false);
+ * import {Component, NgModule} from '@angular/core';
+ * import {APP_BASE_HREF} from '@angular/common';
  *
- * export class CacheInterceptor implements HttpInterceptor {
+ * @NgModule({
+ *   providers: [{provide: APP_BASE_HREF, useValue: '/my/app'}]
+ * })
+ * class AppModule {}
+ * ```
  *
- *   intercept(req: HttpRequest<any>, delegate: HttpHandler): Observable<HttpEvent<any>> {
- *     if (req.context.get(IS_CACHE_ENABLED) === true) {
- *       return ...;
- *     }
- *     return delegate.handle(req);
- *   }
+ * @publicApi
+ */
+export declare const APP_BASE_HREF: InjectionToken<string>;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Unwraps a value from an asynchronous primitive.
+ *
+ * The `async` pipe subscribes to an `Observable` or `Promise` and returns the latest value it has
+ * emitted. When a new value is emitted, the `async` pipe marks the component to be checked for
+ * changes. When the component gets destroyed, the `async` pipe unsubscribes automatically to avoid
+ * potential memory leaks. When the reference of the expression changes, the `async` pipe
+ * automatically unsubscribes from the old `Observable` or `Promise` and subscribes to the new one.
+ *
+ * @usageNotes
+ *
+ * ### Examples
+ *
+ * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
+ * promise.
+ *
+ * {@example common/pipes/ts/async_pipe.ts region='AsyncPipePromise'}
+ *
+ * It's also possible to use `async` with Observables. The example below binds the `time` Observable
+ * to the view. The Observable continuously updates the view with the current time.
+ *
+ * {@example common/pipes/ts/async_pipe.ts region='AsyncPipeObservable'}
+ *
+ * @publicApi
+ */
+export declare class AsyncPipe implements OnDestroy, PipeTransform {
+    private _ref;
+    private _latestValue;
+    private _subscription;
+    private _obj;
+    private _strategy;
+    constructor(ref: ChangeDetectorRef);
+    ngOnDestroy(): void;
+    transform<T>(obj: Observable<T> | Subscribable<T> | Promise<T>): T | null;
+    transform<T>(obj: null | undefined): null;
+    transform<T>(obj: Observable<T> | Subscribable<T> | Promise<T> | null | undefined): T | null;
+    private _subscribe;
+    private _selectStrategy;
+    private _dispose;
+    private _updateLatestValue;
+    static ɵfac: i0.ɵɵFactoryDeclaration<AsyncPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<AsyncPipe, "async", true>;
+}
+
+/**
+ * `PlatformLocation` encapsulates all of the direct calls to platform APIs.
+ * This class should not be used directly by an application developer. Instead, use
+ * {@link Location}.
+ *
+ * @publicApi
+ */
+export declare class BrowserPlatformLocation extends PlatformLocation {
+    private _location;
+    private _history;
+    private _doc;
+    constructor();
+    getBaseHrefFromDOM(): string;
+    onPopState(fn: LocationChangeListener): VoidFunction;
+    onHashChange(fn: LocationChangeListener): VoidFunction;
+    get href(): string;
+    get protocol(): string;
+    get hostname(): string;
+    get port(): string;
+    get pathname(): string;
+    get search(): string;
+    get hash(): string;
+    set pathname(newPath: string);
+    pushState(state: any, title: string, url: string): void;
+    replaceState(state: any, title: string, url: string): void;
+    forward(): void;
+    back(): void;
+    historyGo(relativePosition?: number): void;
+    getState(): unknown;
+    static ɵfac: i0.ɵɵFactoryDeclaration<BrowserPlatformLocation, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<BrowserPlatformLocation>;
+}
+
+/**
+ * Mark `html` string as trusted.
+ *
+ * This function wraps the trusted string in `String` and brands it in a way which makes it
+ * recognizable to {@link htmlSanitizer} to be trusted implicitly.
+ *
+ * @param trustedHtml `html` string which needs to be implicitly trusted.
+ * @returns a `html` which has been branded to be implicitly trusted.
+ */
+declare function bypassSanitizationTrustHtml(trustedHtml: string): SafeHtml;
+
+/**
+ * Mark `url` string as trusted.
+ *
+ * This function wraps the trusted string in `String` and brands it in a way which makes it
+ * recognizable to {@link resourceUrlSanitizer} to be trusted implicitly.
+ *
+ * @param trustedResourceUrl `url` string which needs to be implicitly trusted.
+ * @returns a `url` which has been branded to be implicitly trusted.
+ */
+declare function bypassSanitizationTrustResourceUrl(trustedResourceUrl: string): SafeResourceUrl;
+
+/**
+ * Mark `script` string as trusted.
+ *
+ * This function wraps the trusted string in `String` and brands it in a way which makes it
+ * recognizable to {@link scriptSanitizer} to be trusted implicitly.
+ *
+ * @param trustedScript `script` string which needs to be implicitly trusted.
+ * @returns a `script` which has been branded to be implicitly trusted.
+ */
+declare function bypassSanitizationTrustScript(trustedScript: string): SafeScript;
+
+/**
+ * Mark `style` string as trusted.
+ *
+ * This function wraps the trusted string in `String` and brands it in a way which makes it
+ * recognizable to {@link styleSanitizer} to be trusted implicitly.
+ *
+ * @param trustedStyle `style` string which needs to be implicitly trusted.
+ * @returns a `style` hich has been branded to be implicitly trusted.
+ */
+declare function bypassSanitizationTrustStyle(trustedStyle: string): SafeStyle;
+
+/**
+ * Mark `url` string as trusted.
+ *
+ * This function wraps the trusted string in `String` and brands it in a way which makes it
+ * recognizable to {@link urlSanitizer} to be trusted implicitly.
+ *
+ * @param trustedUrl `url` string which needs to be implicitly trusted.
+ * @returns a `url`  which has been branded to be implicitly trusted.
+ */
+declare function bypassSanitizationTrustUrl(trustedUrl: string): SafeUrl;
+
+
+declare const enum BypassType {
+    Url = "URL",
+    Html = "HTML",
+    ResourceUrl = "ResourceURL",
+    Script = "Script",
+    Style = "Style"
+}
+
+/**
+ * Exports all the basic Angular directives and pipes,
+ * such as `NgIf`, `NgForOf`, `DecimalPipe`, and so on.
+ * Re-exported by `BrowserModule`, which is included automatically in the root
+ * `AppModule` when you create a new app with the CLI `new` command.
+ *
+ * @publicApi
+ */
+export declare class CommonModule {
+    static ɵfac: i0.ɵɵFactoryDeclaration<CommonModule, never>;
+    static ɵmod: i0.ɵɵNgModuleDeclaration<CommonModule, never, [typeof i1.NgClass, typeof i2.NgComponentOutlet, typeof i3.NgForOf, typeof i4.NgIf, typeof i5.NgTemplateOutlet, typeof i6.NgStyle, typeof i7.NgSwitch, typeof i7.NgSwitchCase, typeof i7.NgSwitchDefault, typeof i8.NgPlural, typeof i8.NgPluralCase, typeof i9.AsyncPipe, typeof i10.UpperCasePipe, typeof i10.LowerCasePipe, typeof i11.JsonPipe, typeof i12.SlicePipe, typeof i13.DecimalPipe, typeof i13.PercentPipe, typeof i10.TitleCasePipe, typeof i13.CurrencyPipe, typeof i14.DatePipe, typeof i15.I18nPluralPipe, typeof i16.I18nSelectPipe, typeof i17.KeyValuePipe], [typeof i1.NgClass, typeof i2.NgComponentOutlet, typeof i3.NgForOf, typeof i4.NgIf, typeof i5.NgTemplateOutlet, typeof i6.NgStyle, typeof i7.NgSwitch, typeof i7.NgSwitchCase, typeof i7.NgSwitchDefault, typeof i8.NgPlural, typeof i8.NgPluralCase, typeof i9.AsyncPipe, typeof i10.UpperCasePipe, typeof i10.LowerCasePipe, typeof i11.JsonPipe, typeof i12.SlicePipe, typeof i13.DecimalPipe, typeof i13.PercentPipe, typeof i10.TitleCasePipe, typeof i13.CurrencyPipe, typeof i14.DatePipe, typeof i15.I18nPluralPipe, typeof i16.I18nSelectPipe, typeof i17.KeyValuePipe]>;
+    static ɵinj: i0.ɵɵInjectorDeclaration<CommonModule>;
+}
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Transforms a number to a currency string, formatted according to locale rules
+ * that determine group sizing and separator, decimal-point character,
+ * and other locale-specific configurations.
+ *
+ *
+ * @see {@link getCurrencySymbol}
+ * @see {@link formatCurrency}
+ *
+ * @usageNotes
+ * The following code shows how the pipe transforms numbers
+ * into text strings, according to various format specifications,
+ * where the caller's default locale is `en-US`.
+ *
+ * <code-example path="common/pipes/ts/currency_pipe.ts" region='CurrencyPipe'></code-example>
+ *
+ * @publicApi
+ */
+export declare class CurrencyPipe implements PipeTransform {
+    private _locale;
+    private _defaultCurrencyCode;
+    constructor(_locale: string, _defaultCurrencyCode?: string);
+    transform(value: number | string, currencyCode?: string, display?: 'code' | 'symbol' | 'symbol-narrow' | string | boolean, digitsInfo?: string, locale?: string): string | null;
+    transform(value: null | undefined, currencyCode?: string, display?: 'code' | 'symbol' | 'symbol-narrow' | string | boolean, digitsInfo?: string, locale?: string): null;
+    transform(value: number | string | null | undefined, currencyCode?: string, display?: 'code' | 'symbol' | 'symbol-narrow' | string | boolean, digitsInfo?: string, locale?: string): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<CurrencyPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<CurrencyPipe, "currency", true>;
+}
+
+/**
+ * DI token that allows to provide default configuration for the `DatePipe` instances in an
+ * application. The value is an object which can include the following fields:
+ * - `dateFormat`: configures the default date format. If not provided, the `DatePipe`
+ * will use the 'mediumDate' as a value.
+ * - `timezone`: configures the default timezone. If not provided, the `DatePipe` will
+ * use the end-user's local system timezone.
+ *
+ * @see {@link DatePipeConfig}
+ *
+ * @usageNotes
+ *
+ * Various date pipe default values can be overwritten by providing this token with
+ * the value that has this interface.
+ *
+ * For example:
+ *
+ * Override the default date format by providing a value using the token:
+ * ```typescript
+ * providers: [
+ *   {provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: {dateFormat: 'shortDate'}}
+ * ]
+ * ```
+ *
+ * Override the default timezone by providing a value using the token:
+ * ```typescript
+ * providers: [
+ *   {provide: DATE_PIPE_DEFAULT_OPTIONS, useValue: {timezone: '-1200'}}
+ * ]
+ * ```
+ */
+export declare const DATE_PIPE_DEFAULT_OPTIONS: InjectionToken<DatePipeConfig>;
+
+/**
+ * Optionally-provided default timezone to use for all instances of `DatePipe` (such as `'+0430'`).
+ * If the value isn't provided, the `DatePipe` will use the end-user's local system timezone.
+ *
+ * @deprecated use DATE_PIPE_DEFAULT_OPTIONS token to configure DatePipe
+ */
+export declare const DATE_PIPE_DEFAULT_TIMEZONE: InjectionToken<string>;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Formats a date value according to locale rules.
+ *
+ * `DatePipe` is executed only when it detects a pure change to the input value.
+ * A pure change is either a change to a primitive input value
+ * (such as `String`, `Number`, `Boolean`, or `Symbol`),
+ * or a changed object reference (such as `Date`, `Array`, `Function`, or `Object`).
+ *
+ * Note that mutating a `Date` object does not cause the pipe to be rendered again.
+ * To ensure that the pipe is executed, you must create a new `Date` object.
+ *
+ * Only the `en-US` locale data comes with Angular. To localize dates
+ * in another language, you must import the corresponding locale data.
+ * See the [I18n guide](guide/i18n-common-format-data-locale) for more information.
+ *
+ * The time zone of the formatted value can be specified either by passing it in as the second
+ * parameter of the pipe, or by setting the default through the `DATE_PIPE_DEFAULT_OPTIONS`
+ * injection token. The value that is passed in as the second parameter takes precedence over
+ * the one defined using the injection token.
+ *
+ * @see {@link formatDate}
+ *
+ *
+ * @usageNotes
+ *
+ * The result of this pipe is not reevaluated when the input is mutated. To avoid the need to
+ * reformat the date on every change-detection cycle, treat the date as an immutable object
+ * and change the reference when the pipe needs to run again.
+ *
+ * ### Pre-defined format options
+ *
+ * | Option        | Equivalent to                       | Examples (given in `en-US` locale)              |
+ * |---------------|-------------------------------------|-------------------------------------------------|
+ * | `'short'`     | `'M/d/yy, h:mm a'`                  | `6/15/15, 9:03 AM`                              |
+ * | `'medium'`    | `'MMM d, y, h:mm:ss a'`             | `Jun 15, 2015, 9:03:01 AM`                      |
+ * | `'long'`      | `'MMMM d, y, h:mm:ss a z'`          | `June 15, 2015 at 9:03:01 AM GMT+1`             |
+ * | `'full'`      | `'EEEE, MMMM d, y, h:mm:ss a zzzz'` | `Monday, June 15, 2015 at 9:03:01 AM GMT+01:00` |
+ * | `'shortDate'` | `'M/d/yy'`                          | `6/15/15`                                       |
+ * | `'mediumDate'`| `'MMM d, y'`                        | `Jun 15, 2015`                                  |
+ * | `'longDate'`  | `'MMMM d, y'`                       | `June 15, 2015`                                 |
+ * | `'fullDate'`  | `'EEEE, MMMM d, y'`                 | `Monday, June 15, 2015`                         |
+ * | `'shortTime'` | `'h:mm a'`                          | `9:03 AM`                                       |
+ * | `'mediumTime'`| `'h:mm:ss a'`                       | `9:03:01 AM`                                    |
+ * | `'longTime'`  | `'h:mm:ss a z'`                     | `9:03:01 AM GMT+1`                              |
+ * | `'fullTime'`  | `'h:mm:ss a zzzz'`                  | `9:03:01 AM GMT+01:00`                          |
+ *
+ * ### Custom format options
+ *
+ * You can construct a format string using symbols to specify the components
+ * of a date-time value, as described in the following table.
+ * Format details depend on the locale.
+ * Fields marked with (*) are only available in the extra data set for the given locale.
+ *
+ *  | Field type          | Format      | Description                                                   | Example Value                                              |
+ *  |-------------------- |-------------|---------------------------------------------------------------|------------------------------------------------------------|
+ *  | Era                 | G, GG & GGG | Abbreviated                                                   | AD                                                         |
+ *  |                     | GGGG        | Wide                                                          | Anno Domini                                                |
+ *  |                     | GGGGG       | Narrow                                                        | A                                                          |
+ *  | Year                | y           | Numeric: minimum digits                                       | 2, 20, 201, 2017, 20173                                    |
+ *  |                     | yy          | Numeric: 2 digits + zero padded                               | 02, 20, 01, 17, 73                                         |
+ *  |                     | yyy         | Numeric: 3 digits + zero padded                               | 002, 020, 201, 2017, 20173                                 |
+ *  |                     | yyyy        | Numeric: 4 digits or more + zero padded                       | 0002, 0020, 0201, 2017, 20173                              |
+ *  | Week-numbering year | Y           | Numeric: minimum digits                                       | 2, 20, 201, 2017, 20173                                    |
+ *  |                     | YY          | Numeric: 2 digits + zero padded                               | 02, 20, 01, 17, 73                                         |
+ *  |                     | YYY         | Numeric: 3 digits + zero padded                               | 002, 020, 201, 2017, 20173                                 |
+ *  |                     | YYYY        | Numeric: 4 digits or more + zero padded                       | 0002, 0020, 0201, 2017, 20173                              |
+ *  | Month               | M           | Numeric: 1 digit                                              | 9, 12                                                      |
+ *  |                     | MM          | Numeric: 2 digits + zero padded                               | 09, 12                                                     |
+ *  |                     | MMM         | Abbreviated                                                   | Sep                                                        |
+ *  |                     | MMMM        | Wide                                                          | September                                                  |
+ *  |                     | MMMMM       | Narrow                                                        | S                                                          |
+ *  | Month standalone    | L           | Numeric: 1 digit                                              | 9, 12                                                      |
+ *  |                     | LL          | Numeric: 2 digits + zero padded                               | 09, 12                                                     |
+ *  |                     | LLL         | Abbreviated                                                   | Sep                                                        |
+ *  |                     | LLLL        | Wide                                                          | September                                                  |
+ *  |                     | LLLLL       | Narrow                                                        | S                                                          |
+ *  | Week of year        | w           | Numeric: minimum digits                                       | 1... 53                                                    |
+ *  |                     | ww          | Numeric: 2 digits + zero padded                               | 01... 53                                                   |
+ *  | Week of month       | W           | Numeric: 1 digit                                              | 1... 5                                                     |
+ *  | Day of month        | d           | Numeric: minimum digits                                       | 1                                                          |
+ *  |                     | dd          | Numeric: 2 digits + zero padded                               | 01                                                         |
+ *  | Week day            | E, EE & EEE | Abbreviated                                                   | Tue                                                        |
+ *  |                     | EEEE        | Wide                                                          | Tuesday                                                    |
+ *  |                     | EEEEE       | Narrow                                                        | T                                                          |
+ *  |                     | EEEEEE      | Short                                                         | Tu                                                         |
+ *  | Week day standalone | c, cc       | Numeric: 1 digit                                              | 2                                                          |
+ *  |                     | ccc         | Abbreviated                                                   | Tue                                                        |
+ *  |                     | cccc        | Wide                                                          | Tuesday                                                    |
+ *  |                     | ccccc       | Narrow                                                        | T                                                          |
+ *  |                     | cccccc      | Short                                                         | Tu                                                         |
+ *  | Period              | a, aa & aaa | Abbreviated                                                   | am/pm or AM/PM                                             |
+ *  |                     | aaaa        | Wide (fallback to `a` when missing)                           | ante meridiem/post meridiem                                |
+ *  |                     | aaaaa       | Narrow                                                        | a/p                                                        |
+ *  | Period*             | B, BB & BBB | Abbreviated                                                   | mid.                                                       |
+ *  |                     | BBBB        | Wide                                                          | am, pm, midnight, noon, morning, afternoon, evening, night |
+ *  |                     | BBBBB       | Narrow                                                        | md                                                         |
+ *  | Period standalone*  | b, bb & bbb | Abbreviated                                                   | mid.                                                       |
+ *  |                     | bbbb        | Wide                                                          | am, pm, midnight, noon, morning, afternoon, evening, night |
+ *  |                     | bbbbb       | Narrow                                                        | md                                                         |
+ *  | Hour 1-12           | h           | Numeric: minimum digits                                       | 1, 12                                                      |
+ *  |                     | hh          | Numeric: 2 digits + zero padded                               | 01, 12                                                     |
+ *  | Hour 0-23           | H           | Numeric: minimum digits                                       | 0, 23                                                      |
+ *  |                     | HH          | Numeric: 2 digits + zero padded                               | 00, 23                                                     |
+ *  | Minute              | m           | Numeric: minimum digits                                       | 8, 59                                                      |
+ *  |                     | mm          | Numeric: 2 digits + zero padded                               | 08, 59                                                     |
+ *  | Second              | s           | Numeric: minimum digits                                       | 0... 59                                                    |
+ *  |                     | ss          | Numeric: 2 digits + zero padded                               | 00... 59                                                   |
+ *  | Fractional seconds  | S           | Numeric: 1 digit                                              | 0... 9                                                     |
+ *  |                     | SS          | Numeric: 2 digits + zero padded                               | 00... 99                                                   |
+ *  |                     | SSS         | Numeric: 3 digits + zero padded (= milliseconds)              | 000... 999                                                 |
+ *  | Zone                | z, zz & zzz | Short specific non location format (fallback to O)            | GMT-8                                                      |
+ *  |                     | zzzz        | Long specific non location format (fallback to OOOO)          | GMT-08:00                                                  |
+ *  |                     | Z, ZZ & ZZZ | ISO8601 basic format                                          | -0800                                                      |
+ *  |                     | ZZZZ        | Long localized GMT format                                     | GMT-8:00                                                   |
+ *  |                     | ZZZZZ       | ISO8601 extended format + Z indicator for offset 0 (= XXXXX)  | -08:00                                                     |
+ *  |                     | O, OO & OOO | Short localized GMT format                                    | GMT-8                                                      |
+ *  |                     | OOOO        | Long localized GMT format                                     | GMT-08:00                                                  |
+ *
+ *
+ * ### Format examples
+ *
+ * These examples transform a date into various formats,
+ * assuming that `dateObj` is a JavaScript `Date` object for
+ * year: 2015, month: 6, day: 15, hour: 21, minute: 43, second: 11,
+ * given in the local time for the `en-US` locale.
+ *
+ * ```
+ * {{ dateObj | date }}               // output is 'Jun 15, 2015'
+ * {{ dateObj | date:'medium' }}      // output is 'Jun 15, 2015, 9:43:11 PM'
+ * {{ dateObj | date:'shortTime' }}   // output is '9:43 PM'
+ * {{ dateObj | date:'mm:ss' }}       // output is '43:11'
+ * {{ dateObj | date:"MMM dd, yyyy 'at' hh:mm a" }}  // output is 'Jun 15, 2015 at 09:43 PM'
+ * ```
+ *
+ * ### Usage example
+ *
+ * The following component uses a date pipe to display the current date in different formats.
+ *
+ * ```
+ * @Component({
+ *  selector: 'date-pipe',
+ *  template: `<div>
+ *    <p>Today is {{today | date}}</p>
+ *    <p>Or if you prefer, {{today | date:'fullDate'}}</p>
+ *    <p>The time is {{today | date:'h:mm a z'}}</p>
+ *  </div>`
+ * })
+ * // Get the current date and time as a date-time value.
+ * export class DatePipeComponent {
+ *   today: number = Date.now();
  * }
- *
- * // inside a service
- *
- * this.httpClient.get('/api/weather', {
- *   context: new HttpContext().set(IS_CACHE_ENABLED, true)
- * }).subscribe(...);
  * ```
  *
  * @publicApi
  */
-export declare class HttpContext {
-    private readonly map;
+export declare class DatePipe implements PipeTransform {
+    private locale;
+    private defaultTimezone?;
+    private defaultOptions?;
+    constructor(locale: string, defaultTimezone?: string | null | undefined, defaultOptions?: DatePipeConfig | null | undefined);
     /**
-     * Store a value in the context. If a value is already present it will be overwritten.
+     * @param value The date expression: a `Date` object,  a number
+     * (milliseconds since UTC epoch), or an ISO string (https://www.w3.org/TR/NOTE-datetime).
+     * @param format The date/time components to include, using predefined options or a
+     * custom format string.  When not provided, the `DatePipe` looks for the value using the
+     * `DATE_PIPE_DEFAULT_OPTIONS` injection token (and reads the `dateFormat` property).
+     * If the token is not configured, the `mediumDate` is used as a value.
+     * @param timezone A timezone offset (such as `'+0430'`), or a standard UTC/GMT, or continental US
+     * timezone abbreviation. When not provided, the `DatePipe` looks for the value using the
+     * `DATE_PIPE_DEFAULT_OPTIONS` injection token (and reads the `timezone` property). If the token
+     * is not configured, the end-user's local system timezone is used as a value.
+     * @param locale A locale code for the locale format rules to use.
+     * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
+     * See [Setting your app locale](guide/i18n-common-locale-id).
      *
-     * @param token The reference to an instance of `HttpContextToken`.
-     * @param value The value to store.
+     * @see {@link DATE_PIPE_DEFAULT_OPTIONS}
      *
-     * @returns A reference to itself for easy chaining.
+     * @returns A date string in the desired format.
      */
-    set<T>(token: HttpContextToken<T>, value: T): HttpContext;
-    /**
-     * Retrieve the value associated with the given token.
-     *
-     * @param token The reference to an instance of `HttpContextToken`.
-     *
-     * @returns The stored value or default if one is defined.
-     */
-    get<T>(token: HttpContextToken<T>): T;
-    /**
-     * Delete the value associated with the given token.
-     *
-     * @param token The reference to an instance of `HttpContextToken`.
-     *
-     * @returns A reference to itself for easy chaining.
-     */
-    delete(token: HttpContextToken<unknown>): HttpContext;
-    /**
-     * Checks for existence of a given token.
-     *
-     * @param token The reference to an instance of `HttpContextToken`.
-     *
-     * @returns True if the token exists, false otherwise.
-     */
-    has(token: HttpContextToken<unknown>): boolean;
-    /**
-     * @returns a list of tokens currently stored in the context.
-     */
-    keys(): IterableIterator<HttpContextToken<unknown>>;
+    transform(value: Date | string | number, format?: string, timezone?: string, locale?: string): string | null;
+    transform(value: null | undefined, format?: string, timezone?: string, locale?: string): null;
+    transform(value: Date | string | number | null | undefined, format?: string, timezone?: string, locale?: string): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<DatePipe, [null, { optional: true; }, { optional: true; }]>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<DatePipe, "date", true>;
 }
 
 
 /**
- * A token used to manipulate and access values stored in `HttpContext`.
+ * An interface that describes the date pipe configuration, which can be provided using the
+ * `DATE_PIPE_DEFAULT_OPTIONS` token.
+ *
+ * @see {@link DATE_PIPE_DEFAULT_OPTIONS}
  *
  * @publicApi
  */
-export declare class HttpContextToken<T> {
-    readonly defaultValue: () => T;
-    constructor(defaultValue: () => T);
+export declare interface DatePipeConfig {
+    dateFormat: string;
+    timezone: string;
 }
 
 /**
- * A download progress event.
+ * @ngModule CommonModule
+ * @description
  *
- * @publicApi
- */
-export declare interface HttpDownloadProgressEvent extends HttpProgressEvent {
-    type: HttpEventType.DownloadProgress;
-    /**
-     * The partial response body as downloaded so far.
-     *
-     * Only present if the responseType was `text`.
-     */
-    partialText?: string;
-}
-
-/**
- * A response that represents an error or failure, either from a
- * non-successful HTTP status, an error while executing the request,
- * or some other failure which occurred during the parsing of the response.
+ * Formats a value according to digit options and locale rules.
+ * Locale determines group sizing and separator,
+ * decimal point character, and other locale-specific configurations.
  *
- * Any error returned on the `Observable` response stream will be
- * wrapped in an `HttpErrorResponse` to provide additional context about
- * the state of the HTTP layer when the error occurred. The error property
- * will contain either a wrapped Error object or the error response returned
- * from the server.
- *
- * @publicApi
- */
-export declare class HttpErrorResponse extends HttpResponseBase implements Error {
-    readonly name = "HttpErrorResponse";
-    readonly message: string;
-    readonly error: any | null;
-    /**
-     * Errors are never okay, even when the status code is in the 2xx success range.
-     */
-    readonly ok = false;
-    constructor(init: {
-        error?: any;
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    });
-}
-
-/**
- * Union type for all possible events on the response stream.
- *
- * Typed according to the expected type of the response.
- *
- * @publicApi
- */
-export declare type HttpEvent<T> = HttpSentEvent | HttpHeaderResponse | HttpResponse<T> | HttpProgressEvent | HttpUserEvent<T>;
-
-/**
- * Type enumeration for the different kinds of `HttpEvent`.
- *
- * @publicApi
- */
-export declare enum HttpEventType {
-    /**
-     * The request was sent out over the wire.
-     */
-    Sent = 0,
-    /**
-     * An upload progress event was received.
-     *
-     * Note: The `FetchBackend` doesn't support progress report on uploads.
-     */
-    UploadProgress = 1,
-    /**
-     * The response status code and headers were received.
-     */
-    ResponseHeader = 2,
-    /**
-     * A download progress event was received.
-     */
-    DownloadProgress = 3,
-    /**
-     * The full response including the body was received.
-     */
-    Response = 4,
-    /**
-     * A custom event from an interceptor or a backend.
-     */
-    User = 5
-}
-
-/**
- * A feature for use when configuring `provideHttpClient`.
- *
- * @publicApi
- */
-export declare interface HttpFeature<KindT extends HttpFeatureKind> {
-    ɵkind: KindT;
-    ɵproviders: Provider[];
-}
-
-/**
- * Identifies a particular kind of `HttpFeature`.
- *
- * @publicApi
- */
-export declare enum HttpFeatureKind {
-    Interceptors = 0,
-    LegacyInterceptors = 1,
-    CustomXsrfConfiguration = 2,
-    NoXsrfProtection = 3,
-    JsonpSupport = 4,
-    RequestsMadeViaParent = 5,
-    Fetch = 6
-}
-
-/**
- * Transforms an `HttpRequest` into a stream of `HttpEvent`s, one of which will likely be a
- * `HttpResponse`.
- *
- * `HttpHandler` is injectable. When injected, the handler instance dispatches requests to the
- * first interceptor in the chain, which dispatches to the second, etc, eventually reaching the
- * `HttpBackend`.
- *
- * In an `HttpInterceptor`, the `HttpHandler` parameter is the next interceptor in the chain.
- *
- * @publicApi
- */
-export declare abstract class HttpHandler {
-    abstract handle(req: HttpRequest<any>): Observable<HttpEvent<any>>;
-}
-
-/**
- * Represents the next interceptor in an interceptor chain, or the real backend if there are no
- * further interceptors.
- *
- * Most interceptors will delegate to this function, and either modify the outgoing request or the
- * response when it arrives. Within the scope of the current request, however, this function may be
- * called any number of times, for any number of downstream requests. Such downstream requests need
- * not be to the same URL or even the same origin as the current request. It is also valid to not
- * call the downstream handler at all, and process the current request entirely within the
- * interceptor.
- *
- * This function should only be called within the scope of the request that's currently being
- * intercepted. Once that request is complete, this downstream handler function should not be
- * called.
- *
- * @publicApi
- *
- * @see [HTTP Guide](guide/http-intercept-requests-and-responses)
- */
-export declare type HttpHandlerFn = (req: HttpRequest<unknown>) => Observable<HttpEvent<unknown>>;
-
-/**
- * A partial HTTP response which only includes the status and header data,
- * but no response body.
- *
- * `HttpHeaderResponse` is a `HttpEvent` available on the response
- * event stream, only when progress events are requested.
- *
- * @publicApi
- */
-export declare class HttpHeaderResponse extends HttpResponseBase {
-    /**
-     * Create a new `HttpHeaderResponse` with the given parameters.
-     */
-    constructor(init?: {
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    });
-    readonly type: HttpEventType.ResponseHeader;
-    /**
-     * Copy this `HttpHeaderResponse`, overriding its contents with the
-     * given parameter hash.
-     */
-    clone(update?: {
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    }): HttpHeaderResponse;
-}
-
-
-/**
- * Represents the header configuration options for an HTTP request.
- * Instances are immutable. Modifying methods return a cloned
- * instance with the change. The original object is never changed.
- *
- * @publicApi
- */
-export declare class HttpHeaders {
-    /**
-     * Internal map of lowercase header names to values.
-     */
-    private headers;
-    /**
-     * Internal map of lowercased header names to the normalized
-     * form of the name (the form seen first).
-     */
-    private normalizedNames;
-    /**
-     * Complete the lazy initialization of this object (needed before reading).
-     */
-    private lazyInit;
-    /**
-     * Queued updates to be materialized the next initialization.
-     */
-    private lazyUpdate;
-    /**  Constructs a new HTTP header object with the given values.*/
-    constructor(headers?: string | {
-        [name: string]: string | number | (string | number)[];
-    } | Headers);
-    /**
-     * Checks for existence of a given header.
-     *
-     * @param name The header name to check for existence.
-     *
-     * @returns True if the header exists, false otherwise.
-     */
-    has(name: string): boolean;
-    /**
-     * Retrieves the first value of a given header.
-     *
-     * @param name The header name.
-     *
-     * @returns The value string if the header exists, null otherwise
-     */
-    get(name: string): string | null;
-    /**
-     * Retrieves the names of the headers.
-     *
-     * @returns A list of header names.
-     */
-    keys(): string[];
-    /**
-     * Retrieves a list of values for a given header.
-     *
-     * @param name The header name from which to retrieve values.
-     *
-     * @returns A string of values if the header exists, null otherwise.
-     */
-    getAll(name: string): string[] | null;
-    /**
-     * Appends a new value to the existing set of values for a header
-     * and returns them in a clone of the original instance.
-     *
-     * @param name The header name for which to append the values.
-     * @param value The value to append.
-     *
-     * @returns A clone of the HTTP headers object with the value appended to the given header.
-     */
-    append(name: string, value: string | string[]): HttpHeaders;
-    /**
-     * Sets or modifies a value for a given header in a clone of the original instance.
-     * If the header already exists, its value is replaced with the given value
-     * in the returned object.
-     *
-     * @param name The header name.
-     * @param value The value or values to set or override for the given header.
-     *
-     * @returns A clone of the HTTP headers object with the newly set header value.
-     */
-    set(name: string, value: string | string[]): HttpHeaders;
-    /**
-     * Deletes values for a given header in a clone of the original instance.
-     *
-     * @param name The header name.
-     * @param value The value or values to delete for the given header.
-     *
-     * @returns A clone of the HTTP headers object with the given value deleted.
-     */
-    delete(name: string, value?: string | string[]): HttpHeaders;
-    private maybeSetNormalizedName;
-    private init;
-    private copyFrom;
-    private clone;
-    private applyUpdate;
-    private setHeaderEntries;
-}
-
-/**
- * Intercepts and handles an `HttpRequest` or `HttpResponse`.
- *
- * Most interceptors transform the outgoing request before passing it to the
- * next interceptor in the chain, by calling `next.handle(transformedReq)`.
- * An interceptor may transform the
- * response event stream as well, by applying additional RxJS operators on the stream
- * returned by `next.handle()`.
- *
- * More rarely, an interceptor may handle the request entirely,
- * and compose a new event stream instead of invoking `next.handle()`. This is an
- * acceptable behavior, but keep in mind that further interceptors will be skipped entirely.
- *
- * It is also rare but valid for an interceptor to return multiple responses on the
- * event stream for a single request.
- *
- * @publicApi
- *
- * @see [HTTP Guide](guide/http-intercept-requests-and-responses)
- * @see {@link HttpInterceptorFn}
+ * @see {@link formatNumber}
  *
  * @usageNotes
  *
- * To use the same instance of `HttpInterceptors` for the entire app, import the `HttpClientModule`
- * only in your `AppModule`, and add the interceptors to the root application injector.
- * If you import `HttpClientModule` multiple times across different modules (for example, in lazy
- * loading modules), each import creates a new copy of the `HttpClientModule`, which overwrites the
- * interceptors provided in the root module.
+ * ### digitsInfo
+ *
+ * The value's decimal representation is specified by the `digitsInfo`
+ * parameter, written in the following format:<br>
+ *
+ * ```
+ * {minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}
+ * ```
+ *
+ *  - `minIntegerDigits`:
+ * The minimum number of integer digits before the decimal point.
+ * Default is 1.
+ *
+ * - `minFractionDigits`:
+ * The minimum number of digits after the decimal point.
+ * Default is 0.
+ *
+ *  - `maxFractionDigits`:
+ * The maximum number of digits after the decimal point.
+ * Default is 3.
+ *
+ * If the formatted value is truncated it will be rounded using the "to-nearest" method:
+ *
+ * ```
+ * {{3.6 | number: '1.0-0'}}
+ * <!--will output '4'-->
+ *
+ * {{-3.6 | number:'1.0-0'}}
+ * <!--will output '-4'-->
+ * ```
+ *
+ * ### locale
+ *
+ * `locale` will format a value according to locale rules.
+ * Locale determines group sizing and separator,
+ * decimal point character, and other locale-specific configurations.
+ *
+ * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
+ *
+ * See [Setting your app locale](guide/i18n-common-locale-id).
+ *
+ * ### Example
+ *
+ * The following code shows how the pipe transforms values
+ * according to various format specifications,
+ * where the caller's default locale is `en-US`.
+ *
+ * <code-example path="common/pipes/ts/number_pipe.ts" region='NumberPipe'></code-example>
+ *
+ * @publicApi
  */
-export declare interface HttpInterceptor {
+export declare class DecimalPipe implements PipeTransform {
+    private _locale;
+    constructor(_locale: string);
+    transform(value: number | string, digitsInfo?: string, locale?: string): string | null;
+    transform(value: null | undefined, digitsInfo?: string, locale?: string): null;
+    transform(value: number | string | null | undefined, digitsInfo?: string, locale?: string): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<DecimalPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<DecimalPipe, "number", true>;
+}
+
+declare function defaultComparator<K, V>(keyValueA: KeyValue<K, V>, keyValueB: KeyValue<K, V>): number;
+
+/**
+ * A DI Token representing the main rendering context.
+ * In a browser and SSR this is the DOM Document.
+ * When using SSR, that document is created by [Domino](https://github.com/angular/domino).
+ *
+ * @publicApi
+ */
+export declare const DOCUMENT: InjectionToken<Document>;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Formats a number as currency using locale rules.
+ *
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param currency A string containing the currency symbol or its name,
+ * such as "$" or "Canadian Dollar". Used in output string, but does not affect the operation
+ * of the function.
+ * @param currencyCode The [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217)
+ * currency code, such as `USD` for the US dollar and `EUR` for the euro.
+ * Used to determine the number of digits in the decimal part.
+ * @param digitsInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
+ *
+ * @returns The formatted currency value.
+ *
+ * @see {@link formatNumber}
+ * @see {@link DecimalPipe}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function formatCurrency(value: number, locale: string, currency: string, currencyCode?: string, digitsInfo?: string): string;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Formats a date according to locale rules.
+ *
+ * @param value The date to format, as a Date, or a number (milliseconds since UTC epoch)
+ * or an [ISO date-time string](https://www.w3.org/TR/NOTE-datetime).
+ * @param format The date-time components to include. See `DatePipe` for details.
+ * @param locale A locale code for the locale format rules to use.
+ * @param timezone The time zone. A time zone offset from GMT (such as `'+0430'`),
+ * or a standard UTC/GMT or continental US time zone abbreviation.
+ * If not specified, uses host system settings.
+ *
+ * @returns The formatted date string.
+ *
+ * @see {@link DatePipe}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function formatDate(value: string | number | Date, format: string, locale: string, timezone?: string): string;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Formats a number as text, with group sizing, separator, and other
+ * parameters based on the locale.
+ *
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param digitsInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
+ *
+ * @returns The formatted text string.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function formatNumber(value: number, locale: string, digitsInfo?: string): string;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Formats a number as a percentage according to locale rules.
+ *
+ * @param value The number to format.
+ * @param locale A locale code for the locale format rules to use.
+ * @param digitsInfo Decimal representation options, specified by a string in the following format:
+ * `{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}`. See `DecimalPipe` for more details.
+ *
+ * @returns The formatted percentage value.
+ *
+ * @see {@link formatNumber}
+ * @see {@link DecimalPipe}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ * @publicApi
+ *
+ */
+export declare function formatPercent(value: number, locale: string, digitsInfo?: string): string;
+
+/**
+ * String widths available for date-time formats.
+ * The specific character widths are locale-specific.
+ * Examples are given for `en-US`.
+ *
+ * @see {@link getLocaleDateFormat}
+ * @see {@link getLocaleTimeFormat}
+ * @see {@link getLocaleDateTimeFormat}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ * @publicApi
+ */
+export declare enum FormatWidth {
     /**
-     * Identifies and handles a given HTTP request.
-     * @param req The outgoing request object to handle.
-     * @param next The next interceptor in the chain, or the backend
-     * if no interceptors remain in the chain.
-     * @returns An observable of the event stream.
+     * For `en-US`, 'M/d/yy, h:mm a'`
+     * (Example: `6/15/15, 9:03 AM`)
      */
-    intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>;
+    Short = 0,
+    /**
+     * For `en-US`, `'MMM d, y, h:mm:ss a'`
+     * (Example: `Jun 15, 2015, 9:03:01 AM`)
+     */
+    Medium = 1,
+    /**
+     * For `en-US`, `'MMMM d, y, h:mm:ss a z'`
+     * (Example: `June 15, 2015 at 9:03:01 AM GMT+1`)
+     */
+    Long = 2,
+    /**
+     * For `en-US`, `'EEEE, MMMM d, y, h:mm:ss a zzzz'`
+     * (Example: `Monday, June 15, 2015 at 9:03:01 AM GMT+01:00`)
+     */
+    Full = 3
 }
 
 /**
- * An interceptor for HTTP requests made via `HttpClient`.
+ * Context-dependant translation forms for strings.
+ * Typically the standalone version is for the nominative form of the word,
+ * and the format version is used for the genitive case.
+ * @see [CLDR website](http://cldr.unicode.org/translation/date-time-1/date-time#TOC-Standalone-vs.-Format-Styles)
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
  *
- * `HttpInterceptorFn`s are middleware functions which `HttpClient` calls when a request is made.
- * These functions have the opportunity to modify the outgoing request or any response that comes
- * back, as well as block, redirect, or otherwise change the request or response semantics.
+ * @publicApi
+ */
+export declare enum FormStyle {
+    Format = 0,
+    Standalone = 1
+}
+
+/**
+ * Retrieves the currency symbol for a given currency code.
  *
- * An `HttpHandlerFn` representing the next interceptor (or the backend which will make a real HTTP
- * request) is provided. Most interceptors will delegate to this function, but that is not required
- * (see `HttpHandlerFn` for more details).
+ * For example, for the default `en-US` locale, the code `USD` can
+ * be represented by the narrow symbol `$` or the wide symbol `US$`.
  *
- * `HttpInterceptorFn`s are executed in an [injection context](/guide/dependency-injection-context).
- * They have access to `inject()` via the `EnvironmentInjector` from which they were configured.
+ * @param code The currency code.
+ * @param format The format, `wide` or `narrow`.
+ * @param locale A locale code for the locale format rules to use.
  *
- * @see [HTTP Guide](guide/http-intercept-requests-and-responses)
- * @see {@link withInterceptors}
+ * @returns The symbol, or the currency code if no symbol is available.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getCurrencySymbol(code: string, format: 'wide' | 'narrow', locale?: string): string;
+
+/**
+ * Retrieves the default currency code for the given locale.
+ *
+ * The default is defined as the first currency which is still in use.
+ *
+ * @param locale The code of the locale whose currency code we want.
+ * @returns The code of the default currency for the given locale.
+ *
+ * @publicApi
+ */
+export declare function getLocaleCurrencyCode(locale: string): string | null;
+
+/**
+ * Retrieves the name of the currency for the main country corresponding
+ * to a given locale. For example, 'US Dollar' for `en-US`.
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The currency name,
+ * or `null` if the main country cannot be determined.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleCurrencyName(locale: string): string | null;
+
+/**
+ * Retrieves the symbol used to represent the currency for the main country
+ * corresponding to a given locale. For example, '$' for `en-US`.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The localized symbol character,
+ * or `null` if the main country cannot be determined.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleCurrencySymbol(locale: string): string | null;
+
+/**
+ * Retrieves a localized date-value formatting string.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formatting string.
+ * @see {@link FormatWidth}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleDateFormat(locale: string, width: FormatWidth): string;
+
+/**
+ * Retrieves a localized date-time formatting string.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formatting string.
+ * @see {@link FormatWidth}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleDateTimeFormat(locale: string, width: FormatWidth): string;
+
+/**
+ * Retrieves days of the week for the given locale, using the Gregorian calendar.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized name strings.
+ * For example,`[Sunday, Monday, ... Saturday]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleDayNames(locale: string, formStyle: FormStyle, width: TranslationWidth): ReadonlyArray<string>;
+
+/**
+ * Retrieves day period strings for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized period strings. For example, `[AM, PM]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleDayPeriods(locale: string, formStyle: FormStyle, width: TranslationWidth): Readonly<[string, string]>;
+
+/**
+ * Retrieves the writing direction of a specified locale
+ * @param locale A locale code for the locale format rules to use.
+ * @publicApi
+ * @returns 'rtl' or 'ltr'
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ */
+export declare function getLocaleDirection(locale: string): 'ltr' | 'rtl';
+
+/**
+ * Retrieves Gregorian-calendar eras for the given locale.
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The required character width.
+
+ * @returns An array of localized era strings.
+ * For example, `[AD, BC]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleEraNames(locale: string, width: TranslationWidth): Readonly<[string, string]>;
+
+/**
+ * Retrieves locale-specific rules used to determine which day period to use
+ * when more than one period is defined for a locale.
+ *
+ * There is a rule for each defined day period. The
+ * first rule is applied to the first day period and so on.
+ * Fall back to AM/PM when no rules are available.
+ *
+ * A rule can specify a period as time range, or as a single time value.
+ *
+ * This functionality is only available when you have loaded the full locale data.
+ * See the ["I18n guide"](guide/i18n-common-format-data-locale).
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The rules for the locale, a single time value or array of *from-time, to-time*,
+ * or null if no periods are available.
+ *
+ * @see {@link getLocaleExtraDayPeriods}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleExtraDayPeriodRules(locale: string): (Time | [Time, Time])[];
+
+/**
+ * Retrieves locale-specific day periods, which indicate roughly how a day is broken up
+ * in different languages.
+ * For example, for `en-US`, periods are morning, noon, afternoon, evening, and midnight.
+ *
+ * This functionality is only available when you have loaded the full locale data.
+ * See the ["I18n guide"](guide/i18n-common-format-data-locale).
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns The translated day-period strings.
+ * @see {@link getLocaleExtraDayPeriodRules}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleExtraDayPeriods(locale: string, formStyle: FormStyle, width: TranslationWidth): string[];
+
+/**
+ * Retrieves the first day of the week for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns A day index number, using the 0-based week-day index for `en-US`
+ * (Sunday = 0, Monday = 1, ...).
+ * For example, for `fr-FR`, returns 1 to indicate that the first day is Monday.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleFirstDayOfWeek(locale: string): WeekDay;
+
+/**
+ * Retrieves the locale ID from the currently loaded locale.
+ * The loaded locale could be, for example, a global one rather than a regional one.
+ * @param locale A locale code, such as `fr-FR`.
+ * @returns The locale code. For example, `fr`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleId(locale: string): string;
+
+/**
+ * Retrieves months of the year for the given locale, using the Gregorian calendar.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param formStyle The required grammatical form.
+ * @param width The required character width.
+ * @returns An array of localized name strings.
+ * For example,  `[January, February, ...]` for `en-US`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleMonthNames(locale: string, formStyle: FormStyle, width: TranslationWidth): ReadonlyArray<string>;
+
+/**
+ * Retrieves a number format for a given locale.
+ *
+ * Numbers are formatted using patterns, like `#,###.00`. For example, the pattern `#,###.00`
+ * when used to format the number 12345.678 could result in "12'345,678". That would happen if the
+ * grouping separator for your language is an apostrophe, and the decimal separator is a comma.
+ *
+ * <b>Important:</b> The characters `.` `,` `0` `#` (and others below) are special placeholders
+ * that stand for the decimal separator, and so on, and are NOT real characters.
+ * You must NOT "translate" the placeholders. For example, don't change `.` to `,` even though in
+ * your language the decimal point is written with a comma. The symbols should be replaced by the
+ * local equivalents, using the appropriate `NumberSymbol` for your language.
+ *
+ * Here are the special characters used in number patterns:
+ *
+ * | Symbol | Meaning |
+ * |--------|---------|
+ * | . | Replaced automatically by the character used for the decimal point. |
+ * | , | Replaced by the "grouping" (thousands) separator. |
+ * | 0 | Replaced by a digit (or zero if there aren't enough digits). |
+ * | # | Replaced by a digit (or nothing if there aren't enough). |
+ * | ¤ | Replaced by a currency symbol, such as $ or USD. |
+ * | % | Marks a percent format. The % symbol may change position, but must be retained. |
+ * | E | Marks a scientific format. The E symbol may change position, but must be retained. |
+ * | ' | Special characters used as literal characters are quoted with ASCII single quotes. |
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param type The type of numeric value to be formatted (such as `Decimal` or `Currency`.)
+ * @returns The localized format string.
+ * @see {@link NumberFormatStyle}
+ * @see [CLDR website](http://cldr.unicode.org/translation/number-patterns)
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleNumberFormat(locale: string, type: NumberFormatStyle): string;
+
+/**
+ * Retrieves a localized number symbol that can be used to replace placeholders in number formats.
+ * @param locale The locale code.
+ * @param symbol The symbol to localize.
+ * @returns The character for the localized symbol.
+ * @see {@link NumberSymbol}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleNumberSymbol(locale: string, symbol: NumberSymbol): string;
+
+/**
+ * @alias core/ɵgetLocalePluralCase
+ * @publicApi
+ */
+export declare const getLocalePluralCase: (locale: string) => ((value: number) => Plural);
+
+/**
+ * Retrieves a localized time-value formatting string.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @param width The format type.
+ * @returns The localized formatting string.
+ * @see {@link FormatWidth}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+
+ * @publicApi
+ */
+export declare function getLocaleTimeFormat(locale: string, width: FormatWidth): string;
+
+/**
+ * Range of week days that are considered the week-end for the given locale.
+ *
+ * @param locale A locale code for the locale format rules to use.
+ * @returns The range of day values, `[startDay, endDay]`.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getLocaleWeekEndRange(locale: string): [WeekDay, WeekDay];
+
+/**
+ * Reports the number of decimal digits for a given currency.
+ * The value depends upon the presence of cents in that particular currency.
+ *
+ * @param code The currency code.
+ * @returns The number of decimal digits, typically 0 or 2.
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare function getNumberOfCurrencyDigits(code: string): number;
+
+declare function getSanitizationBypassType(value: any): BypassType | null;
+
+/**
+ * @description
+ * A {@link LocationStrategy} used to configure the {@link Location} service to
+ * represent its state in the
+ * [hash fragment](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax)
+ * of the browser's URL.
+ *
+ * For instance, if you call `location.go('/foo')`, the browser's URL will become
+ * `example.com#/foo`.
  *
  * @usageNotes
- * Here is a noop interceptor that passes the request through without modifying it:
- * ```typescript
- * export const noopInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next:
- * HttpHandlerFn) => {
- *   return next(modifiedReq);
- * };
- * ```
  *
- * If you want to alter a request, clone it first and modify the clone before passing it to the
- * `next()` handler function.
+ * ### Example
  *
- * Here is a basic interceptor that adds a bearer token to the headers
- * ```typescript
- * export const authenticationInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next:
- * HttpHandlerFn) => {
- *    const userToken = 'MY_TOKEN'; const modifiedReq = req.clone({
- *      headers: req.headers.set('Authorization', `Bearer ${userToken}`),
- *    });
- *
- *    return next(modifiedReq);
- * };
- * ```
- */
-export declare type HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => Observable<HttpEvent<unknown>>;
-
-declare class HttpInterceptorHandler extends HttpHandler {
-    private backend;
-    private injector;
-    private chain;
-    private readonly pendingTasks;
-    constructor(backend: HttpBackend, injector: EnvironmentInjector);
-    handle(initialRequest: HttpRequest<any>): Observable<HttpEvent<any>>;
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpInterceptorHandler, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<HttpInterceptorHandler>;
-}
-export { HttpInterceptorHandler as ɵHttpInterceptingHandler }
-export { HttpInterceptorHandler as ɵHttpInterceptorHandler }
-
-
-/**
- * A codec for encoding and decoding parameters in URLs.
- *
- * Used by `HttpParams`.
- *
- * @publicApi
- **/
-export declare interface HttpParameterCodec {
-    encodeKey(key: string): string;
-    encodeValue(value: string): string;
-    decodeKey(key: string): string;
-    decodeValue(value: string): string;
-}
-
-/**
- * An HTTP request/response body that represents serialized parameters,
- * per the MIME type `application/x-www-form-urlencoded`.
- *
- * This class is immutable; all mutation operations return a new instance.
+ * {@example common/location/ts/hash_location_component.ts region='LocationComponent'}
  *
  * @publicApi
  */
-export declare class HttpParams {
-    private map;
-    private encoder;
-    private updates;
-    private cloneFrom;
-    constructor(options?: HttpParamsOptions);
-    /**
-     * Reports whether the body includes one or more values for a given parameter.
-     * @param param The parameter name.
-     * @returns True if the parameter has one or more values,
-     * false if it has no value or is not present.
-     */
-    has(param: string): boolean;
-    /**
-     * Retrieves the first value for a parameter.
-     * @param param The parameter name.
-     * @returns The first value of the given parameter,
-     * or `null` if the parameter is not present.
-     */
-    get(param: string): string | null;
-    /**
-     * Retrieves all values for a  parameter.
-     * @param param The parameter name.
-     * @returns All values in a string array,
-     * or `null` if the parameter not present.
-     */
-    getAll(param: string): string[] | null;
-    /**
-     * Retrieves all the parameters for this body.
-     * @returns The parameter names in a string array.
-     */
-    keys(): string[];
-    /**
-     * Appends a new value to existing values for a parameter.
-     * @param param The parameter name.
-     * @param value The new value to add.
-     * @return A new body with the appended value.
-     */
-    append(param: string, value: string | number | boolean): HttpParams;
-    /**
-     * Constructs a new body with appended values for the given parameter name.
-     * @param params parameters and values
-     * @return A new body with the new value.
-     */
-    appendAll(params: {
-        [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
-    }): HttpParams;
-    /**
-     * Replaces the value for a parameter.
-     * @param param The parameter name.
-     * @param value The new value.
-     * @return A new body with the new value.
-     */
-    set(param: string, value: string | number | boolean): HttpParams;
-    /**
-     * Removes a given value or all values from a parameter.
-     * @param param The parameter name.
-     * @param value The value to remove, if provided.
-     * @return A new body with the given value removed, or with all values
-     * removed if no value is specified.
-     */
-    delete(param: string, value?: string | number | boolean): HttpParams;
-    /**
-     * Serializes the body to an encoded string, where key-value pairs (separated by `=`) are
-     * separated by `&`s.
-     */
-    toString(): string;
-    private clone;
-    private init;
+export declare class HashLocationStrategy extends LocationStrategy implements OnDestroy {
+    private _platformLocation;
+    private _baseHref;
+    private _removeListenerFns;
+    constructor(_platformLocation: PlatformLocation, _baseHref?: string);
+    /** @nodoc */
+    ngOnDestroy(): void;
+    onPopState(fn: LocationChangeListener): void;
+    getBaseHref(): string;
+    path(includeHash?: boolean): string;
+    prepareExternalUrl(internal: string): string;
+    pushState(state: any, title: string, path: string, queryParams: string): void;
+    replaceState(state: any, title: string, path: string, queryParams: string): void;
+    forward(): void;
+    back(): void;
+    getState(): unknown;
+    historyGo(relativePosition?: number): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<HashLocationStrategy, [null, { optional: true; }]>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<HashLocationStrategy>;
+}
+
+declare namespace i1 {
+    export {
+        NgClass
+    }
+}
+
+declare namespace i10 {
+    export {
+        LowerCasePipe,
+        TitleCasePipe,
+        UpperCasePipe
+    }
+}
+
+declare namespace i11 {
+    export {
+        JsonPipe
+    }
+}
+
+declare namespace i12 {
+    export {
+        SlicePipe
+    }
+}
+
+declare namespace i13 {
+    export {
+        DecimalPipe,
+        PercentPipe,
+        CurrencyPipe
+    }
+}
+
+declare namespace i14 {
+    export {
+        DATE_PIPE_DEFAULT_TIMEZONE,
+        DATE_PIPE_DEFAULT_OPTIONS,
+        DatePipe
+    }
+}
+
+declare namespace i15 {
+    export {
+        I18nPluralPipe
+    }
+}
+
+declare namespace i16 {
+    export {
+        I18nSelectPipe
+    }
+}
+
+declare namespace i17 {
+    export {
+        defaultComparator,
+        KeyValue,
+        KeyValuePipe
+    }
 }
 
 /**
- * Options used to construct an `HttpParams` instance.
+ * @ngModule CommonModule
+ * @description
+ *
+ * Maps a value to a string that pluralizes the value according to locale rules.
+ *
+ * @usageNotes
+ *
+ * ### Example
+ *
+ * {@example common/pipes/ts/i18n_pipe.ts region='I18nPluralPipeComponent'}
  *
  * @publicApi
  */
-export declare interface HttpParamsOptions {
+export declare class I18nPluralPipe implements PipeTransform {
+    private _localization;
+    constructor(_localization: NgLocalization);
     /**
-     * String representation of the HTTP parameters in URL-query-string format.
-     * Mutually exclusive with `fromObject`.
+     * @param value the number to be formatted
+     * @param pluralMap an object that mimics the ICU format, see
+     * https://unicode-org.github.io/icu/userguide/format_parse/messages/.
+     * @param locale a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
+     * default).
      */
-    fromString?: string;
-    /** Object map of the HTTP parameters. Mutually exclusive with `fromString`. */
-    fromObject?: {
-        [param: string]: string | number | boolean | ReadonlyArray<string | number | boolean>;
+    transform(value: number | null | undefined, pluralMap: {
+        [count: string]: string;
+    }, locale?: string): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<I18nPluralPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<I18nPluralPipe, "i18nPlural", true>;
+}
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Generic selector that displays the string that matches the current value.
+ *
+ * If none of the keys of the `mapping` match the `value`, then the content
+ * of the `other` key is returned when present, otherwise an empty string is returned.
+ *
+ * @usageNotes
+ *
+ * ### Example
+ *
+ * {@example common/pipes/ts/i18n_pipe.ts region='I18nSelectPipeComponent'}
+ *
+ * @publicApi
+ */
+export declare class I18nSelectPipe implements PipeTransform {
+    /**
+     * @param value a string to be internationalized.
+     * @param mapping an object that indicates the text that should be displayed
+     * for different values of the provided `value`.
+     */
+    transform(value: string | null | undefined, mapping: {
+        [key: string]: string;
+    }): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<I18nSelectPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<I18nSelectPipe, "i18nSelect", true>;
+}
+
+declare namespace i1_2 {
+    export {
+        unwrapSafeValue,
+        allowSanitizationBypassAndThrow,
+        getSanitizationBypassType,
+        bypassSanitizationTrustHtml,
+        bypassSanitizationTrustStyle,
+        bypassSanitizationTrustScript,
+        bypassSanitizationTrustUrl,
+        bypassSanitizationTrustResourceUrl,
+        BypassType,
+        SafeValue,
+        SafeHtml,
+        SafeStyle,
+        SafeScript,
+        SafeUrl,
+        SafeResourceUrl
+    }
+}
+
+declare namespace i2 {
+    export {
+        NgComponentOutlet
+    }
+}
+
+declare namespace i3 {
+    export {
+        NgForOfContext,
+        NgForOf,
+        NgForOf as NgFor
+    }
+}
+
+declare namespace i4 {
+    export {
+        NgIf,
+        NgIfContext
+    }
+}
+
+declare namespace i5 {
+    export {
+        NgTemplateOutlet
+    }
+}
+
+declare namespace i6 {
+    export {
+        NgStyle
+    }
+}
+
+declare namespace i7 {
+    export {
+        SwitchView,
+        NgSwitch,
+        NgSwitchCase,
+        NgSwitchDefault
+    }
+}
+
+declare namespace i8 {
+    export {
+        NgPlural,
+        NgPluralCase
+    }
+}
+
+declare namespace i9 {
+    export {
+        AsyncPipe
+    }
+}
+
+/**
+ * Injection token that configures the image optimized image functionality.
+ *
+ * @see {@link NgOptimizedImage}
+ * @publicApi
+ */
+export declare const IMAGE_CONFIG: InjectionToken<ImageConfig>;
+
+/**
+ * Injection token that configures the image loader function.
+ *
+ * @see {@link ImageLoader}
+ * @see {@link NgOptimizedImage}
+ * @publicApi
+ */
+export declare const IMAGE_LOADER: InjectionToken<ImageLoader>;
+
+/**
+ * A configuration object for the NgOptimizedImage directive. Contains:
+ * - breakpoints: An array of integer breakpoints used to generate
+ *      srcsets for responsive images.
+ *
+ * Learn more about the responsive image configuration in [the NgOptimizedImage
+ * guide](guide/image-directive).
+ * @publicApi
+ */
+export declare type ImageConfig = {
+    breakpoints?: number[];
+};
+
+/**
+ * Represents an image loader function. Image loader functions are used by the
+ * NgOptimizedImage directive to produce full image URL based on the image name and its width.
+ *
+ * @publicApi
+ */
+export declare type ImageLoader = (config: ImageLoaderConfig) => string;
+
+/**
+ * Config options recognized by the image loader function.
+ *
+ * @see {@link ImageLoader}
+ * @see {@link NgOptimizedImage}
+ * @publicApi
+ */
+export declare interface ImageLoaderConfig {
+    /**
+     * Image file name to be added to the image request URL.
+     */
+    src: string;
+    /**
+     * Width of the requested image (to be used when generating srcset).
+     */
+    width?: number;
+    /**
+     * Additional user-provided parameters for use by the ImageLoader.
+     */
+    loaderParams?: {
+        [key: string]: any;
     };
-    /** Encoding codec used to parse and serialize the parameters. */
-    encoder?: HttpParameterCodec;
 }
 
 /**
- * Base interface for progress events.
+ * Returns whether a platform id represents a browser platform.
+ * @publicApi
+ */
+export declare function isPlatformBrowser(platformId: Object): boolean;
+
+/**
+ * Returns whether a platform id represents a server platform.
+ * @publicApi
+ */
+export declare function isPlatformServer(platformId: Object): boolean;
+
+/**
+ * Returns whether a platform id represents a web worker app platform.
+ * @publicApi
+ * @deprecated This function serves no purpose since the removal of the Webworker platform. It will
+ *     always return `false`.
+ */
+export declare function isPlatformWorkerApp(platformId: Object): boolean;
+
+/**
+ * Returns whether a platform id represents a web worker UI platform.
+ * @publicApi
+ * @deprecated This function serves no purpose since the removal of the Webworker platform. It will
+ *     always return `false`.
+ */
+export declare function isPlatformWorkerUi(platformId: Object): boolean;
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Converts a value into its JSON-format representation.  Useful for debugging.
+ *
+ * @usageNotes
+ *
+ * The following component uses a JSON pipe to convert an object
+ * to JSON format, and displays the string in both formats for comparison.
+ *
+ * {@example common/pipes/ts/json_pipe.ts region='JsonPipe'}
  *
  * @publicApi
  */
-export declare interface HttpProgressEvent {
+export declare class JsonPipe implements PipeTransform {
     /**
-     * Progress event type is either upload or download.
+     * @param value A value of any type to convert into a JSON-format string.
      */
-    type: HttpEventType.DownloadProgress | HttpEventType.UploadProgress;
-    /**
-     * Number of bytes uploaded or downloaded.
-     */
-    loaded: number;
-    /**
-     * Total number of bytes to upload or download. Depending on the request or
-     * response, this may not be computable and thus may not be present.
-     */
-    total?: number;
+    transform(value: any): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<JsonPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<JsonPipe, "json", true>;
 }
 
 /**
- * An outgoing HTTP request with an optional typed body.
- *
- * `HttpRequest` represents an outgoing request, including URL, method,
- * headers, body, and other request configuration options. Instances should be
- * assumed to be immutable. To modify a `HttpRequest`, the `clone`
- * method should be used.
+ * A key value pair.
+ * Usually used to represent the key value pairs from a Map or Object.
  *
  * @publicApi
  */
-export declare class HttpRequest<T> {
-    readonly url: string;
+export declare interface KeyValue<K, V> {
+    key: K;
+    value: V;
+}
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Transforms Object or Map into an array of key value pairs.
+ *
+ * The output array will be ordered by keys.
+ * By default the comparator will be by Unicode point value.
+ * You can optionally pass a compareFn if your keys are complex types.
+ *
+ * @usageNotes
+ * ### Examples
+ *
+ * This examples show how an Object or a Map can be iterated by ngFor with the use of this
+ * keyvalue pipe.
+ *
+ * {@example common/pipes/ts/keyvalue_pipe.ts region='KeyValuePipe'}
+ *
+ * @publicApi
+ */
+export declare class KeyValuePipe implements PipeTransform {
+    private readonly differs;
+    constructor(differs: KeyValueDiffers);
+    private differ;
+    private keyValues;
+    private compareFn;
+    transform<K, V>(input: ReadonlyMap<K, V>, compareFn?: (a: KeyValue<K, V>, b: KeyValue<K, V>) => number): Array<KeyValue<K, V>>;
+    transform<K extends number, V>(input: Record<K, V>, compareFn?: (a: KeyValue<string, V>, b: KeyValue<string, V>) => number): Array<KeyValue<string, V>>;
+    transform<K extends string, V>(input: Record<K, V> | ReadonlyMap<K, V>, compareFn?: (a: KeyValue<K, V>, b: KeyValue<K, V>) => number): Array<KeyValue<K, V>>;
+    transform(input: null | undefined, compareFn?: (a: KeyValue<unknown, unknown>, b: KeyValue<unknown, unknown>) => number): null;
+    transform<K, V>(input: ReadonlyMap<K, V> | null | undefined, compareFn?: (a: KeyValue<K, V>, b: KeyValue<K, V>) => number): Array<KeyValue<K, V>> | null;
+    transform<K extends number, V>(input: Record<K, V> | null | undefined, compareFn?: (a: KeyValue<string, V>, b: KeyValue<string, V>) => number): Array<KeyValue<string, V>> | null;
+    transform<K extends string, V>(input: Record<K, V> | ReadonlyMap<K, V> | null | undefined, compareFn?: (a: KeyValue<K, V>, b: KeyValue<K, V>) => number): Array<KeyValue<K, V>> | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<KeyValuePipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<KeyValuePipe, "keyvalue", true>;
+}
+
+/**
+ * @description
+ *
+ * A service that applications can use to interact with a browser's URL.
+ *
+ * Depending on the `LocationStrategy` used, `Location` persists
+ * to the URL's path or the URL's hash segment.
+ *
+ * @usageNotes
+ *
+ * It's better to use the `Router.navigate()` service to trigger route changes. Use
+ * `Location` only if you need to interact with or create normalized URLs outside of
+ * routing.
+ *
+ * `Location` is responsible for normalizing the URL against the application's base href.
+ * A normalized URL is absolute from the URL host, includes the application's base href, and has no
+ * trailing slash:
+ * - `/my/app/user/123` is normalized
+ * - `my/app/user/123` **is not** normalized
+ * - `/my/app/user/123/` **is not** normalized
+ *
+ * ### Example
+ *
+ * <code-example path='common/location/ts/path_location_component.ts'
+ * region='LocationComponent'></code-example>
+ *
+ * @publicApi
+ */
+declare class Location_2 implements OnDestroy {
+    constructor(locationStrategy: LocationStrategy);
+    /** @nodoc */
+    ngOnDestroy(): void;
     /**
-     * The request body, or `null` if one isn't set.
+     * Normalizes the URL path for this location.
      *
-     * Bodies are not enforced to be immutable, as they can include a reference to any
-     * user-defined data type. However, interceptors should take care to preserve
-     * idempotence by treating them as such.
-     */
-    readonly body: T | null;
-    /**
-     * Outgoing headers for this request.
-     */
-    readonly headers: HttpHeaders;
-    /**
-     * Shared and mutable context that can be used by interceptors
-     */
-    readonly context: HttpContext;
-    /**
-     * Whether this request should be made in a way that exposes progress events.
+     * @param includeHash True to include an anchor fragment in the path.
      *
-     * Progress events are expensive (change detection runs on each event) and so
-     * they should only be requested if the consumer intends to monitor them.
+     * @returns The normalized URL path.
+     */
+    path(includeHash?: boolean): string;
+    /**
+     * Reports the current state of the location history.
+     * @returns The current value of the `history.state` object.
+     */
+    getState(): unknown;
+    /**
+     * Normalizes the given path and compares to the current normalized path.
      *
-     * Note: The `FetchBackend` doesn't support progress report on uploads.
-     */
-    readonly reportProgress: boolean;
-    /**
-     * Whether this request should be sent with outgoing credentials (cookies).
-     */
-    readonly withCredentials: boolean;
-    /**
-     * The expected response type of the server.
+     * @param path The given URL path.
+     * @param query Query parameters.
      *
-     * This is used to parse the response appropriately before returning it to
-     * the requestee.
+     * @returns True if the given URL path is equal to the current normalized path, false
+     * otherwise.
      */
-    readonly responseType: 'arraybuffer' | 'blob' | 'json' | 'text';
+    isCurrentPathEqualTo(path: string, query?: string): boolean;
     /**
-     * The outgoing HTTP request method.
-     */
-    readonly method: string;
-    /**
-     * Outgoing URL parameters.
+     * Normalizes a URL path by stripping any trailing slashes.
      *
-     * To pass a string representation of HTTP parameters in the URL-query-string format,
-     * the `HttpParamsOptions`' `fromString` may be used. For example:
+     * @param url String representing a URL.
      *
-     * ```
-     * new HttpParams({fromString: 'angular=awesome'})
-     * ```
+     * @returns The normalized URL string.
      */
-    readonly params: HttpParams;
+    normalize(url: string): string;
     /**
-     * The outgoing URL with all URL parameters set.
-     */
-    readonly urlWithParams: string;
-    constructor(method: 'DELETE' | 'GET' | 'HEAD' | 'JSONP' | 'OPTIONS', url: string, init?: {
-        headers?: HttpHeaders;
-        context?: HttpContext;
-        reportProgress?: boolean;
-        params?: HttpParams;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-    });
-    constructor(method: 'POST' | 'PUT' | 'PATCH', url: string, body: T | null, init?: {
-        headers?: HttpHeaders;
-        context?: HttpContext;
-        reportProgress?: boolean;
-        params?: HttpParams;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-    });
-    constructor(method: string, url: string, body: T | null, init?: {
-        headers?: HttpHeaders;
-        context?: HttpContext;
-        reportProgress?: boolean;
-        params?: HttpParams;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-    });
-    /**
-     * Transform the free-form body into a serialized format suitable for
-     * transmission to the server.
-     */
-    serializeBody(): ArrayBuffer | Blob | FormData | URLSearchParams | string | null;
-    /**
-     * Examine the body and attempt to infer an appropriate MIME type
-     * for it.
+     * Normalizes an external URL path.
+     * If the given URL doesn't begin with a leading slash (`'/'`), adds one
+     * before normalizing. Adds a hash if `HashLocationStrategy` is
+     * in use, or the `APP_BASE_HREF` if the `PathLocationStrategy` is in use.
      *
-     * If no such type can be inferred, this method will return `null`.
-     */
-    detectContentTypeHeader(): string | null;
-    clone(): HttpRequest<T>;
-    clone(update: {
-        headers?: HttpHeaders;
-        context?: HttpContext;
-        reportProgress?: boolean;
-        params?: HttpParams;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-        body?: T | null;
-        method?: string;
-        url?: string;
-        setHeaders?: {
-            [name: string]: string | string[];
-        };
-        setParams?: {
-            [param: string]: string;
-        };
-    }): HttpRequest<T>;
-    clone<V>(update: {
-        headers?: HttpHeaders;
-        context?: HttpContext;
-        reportProgress?: boolean;
-        params?: HttpParams;
-        responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-        withCredentials?: boolean;
-        body?: V | null;
-        method?: string;
-        url?: string;
-        setHeaders?: {
-            [name: string]: string | string[];
-        };
-        setParams?: {
-            [param: string]: string;
-        };
-    }): HttpRequest<V>;
-}
-
-/**
- * A full HTTP response, including a typed response body (which may be `null`
- * if one was not returned).
- *
- * `HttpResponse` is a `HttpEvent` available on the response event
- * stream.
- *
- * @publicApi
- */
-export declare class HttpResponse<T> extends HttpResponseBase {
-    /**
-     * The response body, or `null` if one was not returned.
-     */
-    readonly body: T | null;
-    /**
-     * Construct a new `HttpResponse`.
-     */
-    constructor(init?: {
-        body?: T | null;
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    });
-    readonly type: HttpEventType.Response;
-    clone(): HttpResponse<T>;
-    clone(update: {
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    }): HttpResponse<T>;
-    clone<V>(update: {
-        body?: V | null;
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    }): HttpResponse<V>;
-}
-
-/**
- * Base class for both `HttpResponse` and `HttpHeaderResponse`.
- *
- * @publicApi
- */
-export declare abstract class HttpResponseBase {
-    /**
-     * All response headers.
-     */
-    readonly headers: HttpHeaders;
-    /**
-     * Response status code.
-     */
-    readonly status: number;
-    /**
-     * Textual description of response status code, defaults to OK.
+     * @param url String representing a URL.
      *
-     * Do not depend on this.
+     * @returns  A normalized platform-specific URL.
      */
-    readonly statusText: string;
+    prepareExternalUrl(url: string): string;
     /**
-     * URL of the resource retrieved, or null if not available.
-     */
-    readonly url: string | null;
-    /**
-     * Whether the status code falls in the 2xx range.
-     */
-    readonly ok: boolean;
-    /**
-     * Type of the response, narrowed to either the full response or the header.
-     */
-    readonly type: HttpEventType.Response | HttpEventType.ResponseHeader;
-    /**
-     * Super-constructor for all responses.
+     * Changes the browser's URL to a normalized version of a given URL, and pushes a
+     * new item onto the platform's history.
      *
-     * The single parameter accepted is an initialization hash. Any properties
-     * of the response passed there will override the default values.
-     */
-    constructor(init: {
-        headers?: HttpHeaders;
-        status?: number;
-        statusText?: string;
-        url?: string;
-    }, defaultStatus?: number, defaultStatusText?: string);
-}
-
-/**
- * An event indicating that the request was sent to the server. Useful
- * when a request may be retried multiple times, to distinguish between
- * retries on the final event stream.
- *
- * @publicApi
- */
-export declare interface HttpSentEvent {
-    type: HttpEventType.Sent;
-}
-
-/**
- * Http status codes.
- * As per https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
- * @publicApi
- */
-export declare const enum HttpStatusCode {
-    Continue = 100,
-    SwitchingProtocols = 101,
-    Processing = 102,
-    EarlyHints = 103,
-    Ok = 200,
-    Created = 201,
-    Accepted = 202,
-    NonAuthoritativeInformation = 203,
-    NoContent = 204,
-    ResetContent = 205,
-    PartialContent = 206,
-    MultiStatus = 207,
-    AlreadyReported = 208,
-    ImUsed = 226,
-    MultipleChoices = 300,
-    MovedPermanently = 301,
-    Found = 302,
-    SeeOther = 303,
-    NotModified = 304,
-    UseProxy = 305,
-    Unused = 306,
-    TemporaryRedirect = 307,
-    PermanentRedirect = 308,
-    BadRequest = 400,
-    Unauthorized = 401,
-    PaymentRequired = 402,
-    Forbidden = 403,
-    NotFound = 404,
-    MethodNotAllowed = 405,
-    NotAcceptable = 406,
-    ProxyAuthenticationRequired = 407,
-    RequestTimeout = 408,
-    Conflict = 409,
-    Gone = 410,
-    LengthRequired = 411,
-    PreconditionFailed = 412,
-    PayloadTooLarge = 413,
-    UriTooLong = 414,
-    UnsupportedMediaType = 415,
-    RangeNotSatisfiable = 416,
-    ExpectationFailed = 417,
-    ImATeapot = 418,
-    MisdirectedRequest = 421,
-    UnprocessableEntity = 422,
-    Locked = 423,
-    FailedDependency = 424,
-    TooEarly = 425,
-    UpgradeRequired = 426,
-    PreconditionRequired = 428,
-    TooManyRequests = 429,
-    RequestHeaderFieldsTooLarge = 431,
-    UnavailableForLegalReasons = 451,
-    InternalServerError = 500,
-    NotImplemented = 501,
-    BadGateway = 502,
-    ServiceUnavailable = 503,
-    GatewayTimeout = 504,
-    HttpVersionNotSupported = 505,
-    VariantAlsoNegotiates = 506,
-    InsufficientStorage = 507,
-    LoopDetected = 508,
-    NotExtended = 510,
-    NetworkAuthenticationRequired = 511
-}
-
-/**
- * An upload progress event.
- *
- * Note: The `FetchBackend` doesn't support progress report on uploads.
- *
- * @publicApi
- */
-export declare interface HttpUploadProgressEvent extends HttpProgressEvent {
-    type: HttpEventType.UploadProgress;
-}
-
-/**
- * Provides encoding and decoding of URL parameter and query-string values.
- *
- * Serializes and parses URL parameter keys and values to encode and decode them.
- * If you pass URL query parameters without encoding,
- * the query parameters can be misinterpreted at the receiving end.
- *
- *
- * @publicApi
- */
-export declare class HttpUrlEncodingCodec implements HttpParameterCodec {
-    /**
-     * Encodes a key name for a URL parameter or query-string.
-     * @param key The key name.
-     * @returns The encoded key name.
-     */
-    encodeKey(key: string): string;
-    /**
-     * Encodes the value of a URL parameter or query-string.
-     * @param value The value.
-     * @returns The encoded value.
-     */
-    encodeValue(value: string): string;
-    /**
-     * Decodes an encoded URL parameter or query-string key.
-     * @param key The encoded key name.
-     * @returns The decoded key name.
-     */
-    decodeKey(key: string): string;
-    /**
-     * Decodes an encoded URL parameter or query-string value.
-     * @param value The encoded value.
-     * @returns The decoded value.
-     */
-    decodeValue(value: string): string;
-}
-
-/**
- * A user-defined event.
- *
- * Grouping all custom events under this type ensures they will be handled
- * and forwarded by all implementations of interceptors.
- *
- * @publicApi
- */
-export declare interface HttpUserEvent<T> {
-    type: HttpEventType.User;
-}
-
-/**
- * Uses `XMLHttpRequest` to send requests to a backend server.
- * @see {@link HttpHandler}
- * @see {@link JsonpClientBackend}
- *
- * @publicApi
- */
-export declare class HttpXhrBackend implements HttpBackend {
-    private xhrFactory;
-    constructor(xhrFactory: XhrFactory);
-    /**
-     * Processes a request and returns a stream of response events.
-     * @param req The request object.
-     * @returns An observable of the response events.
-     */
-    handle(req: HttpRequest<any>): Observable<HttpEvent<any>>;
-    static ɵfac: i0.ɵɵFactoryDeclaration<HttpXhrBackend, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<HttpXhrBackend>;
-}
-
-/**
- * Retrieves the current XSRF token to use with the next outgoing request.
- *
- * @publicApi
- */
-export declare abstract class HttpXsrfTokenExtractor {
-    /**
-     * Get the XSRF token to use with an outgoing request.
-     *
-     * Will be called for every request, so the token may change between requests.
-     */
-    abstract getToken(): string | null;
-}
-
-/**
- * DI token/abstract type representing a map of JSONP callbacks.
- *
- * In the browser, this should always be the `window` object.
- *
- *
- */
-declare abstract class JsonpCallbackContext {
-    [key: string]: (data: any) => void;
-}
-
-/**
- * Processes an `HttpRequest` with the JSONP method,
- * by performing JSONP style requests.
- * @see {@link HttpHandler}
- * @see {@link HttpXhrBackend}
- *
- * @publicApi
- */
-export declare class JsonpClientBackend implements HttpBackend {
-    private callbackMap;
-    private document;
-    /**
-     * A resolved promise that can be used to schedule microtasks in the event handlers.
-     */
-    private readonly resolvedPromise;
-    constructor(callbackMap: JsonpCallbackContext, document: any);
-    /**
-     * Get the name of the next callback method, by incrementing the global `nextRequestId`.
-     */
-    private nextCallback;
-    /**
-     * Processes a JSONP request and returns an event stream of the results.
-     * @param req The request object.
-     * @returns An observable of the response events.
+     * @param path  URL path to normalize.
+     * @param query Query parameters.
+     * @param state Location history state.
      *
      */
-    handle(req: HttpRequest<never>): Observable<HttpEvent<any>>;
-    private removeListeners;
-    static ɵfac: i0.ɵɵFactoryDeclaration<JsonpClientBackend, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<JsonpClientBackend>;
+    go(path: string, query?: string, state?: any): void;
+    /**
+     * Changes the browser's URL to a normalized version of the given URL, and replaces
+     * the top item on the platform's history stack.
+     *
+     * @param path  URL path to normalize.
+     * @param query Query parameters.
+     * @param state Location history state.
+     */
+    replaceState(path: string, query?: string, state?: any): void;
+    /**
+     * Navigates forward in the platform's history.
+     */
+    forward(): void;
+    /**
+     * Navigates back in the platform's history.
+     */
+    back(): void;
+    /**
+     * Navigate to a specific page from session history, identified by its relative position to the
+     * current page.
+     *
+     * @param relativePosition  Position of the target page in the history relative to the current
+     *     page.
+     * A negative value moves backwards, a positive value moves forwards, e.g. `location.historyGo(2)`
+     * moves forward two pages and `location.historyGo(-2)` moves back two pages. When we try to go
+     * beyond what's stored in the history session, we stay in the current page. Same behaviour occurs
+     * when `relativePosition` equals 0.
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/History_API#Moving_to_a_specific_point_in_history
+     */
+    historyGo(relativePosition?: number): void;
+    /**
+     * Registers a URL change listener. Use to catch updates performed by the Angular
+     * framework that are not detectible through "popstate" or "hashchange" events.
+     *
+     * @param fn The change handler function, which take a URL and a location history state.
+     * @returns A function that, when executed, unregisters a URL change listener.
+     */
+    onUrlChange(fn: (url: string, state: unknown) => void): VoidFunction;
+    /**
+     * Subscribes to the platform's `popState` events.
+     *
+     * Note: `Location.go()` does not trigger the `popState` event in the browser. Use
+     * `Location.onUrlChange()` to subscribe to URL changes instead.
+     *
+     * @param value Event that is triggered when the state history changes.
+     * @param exception The exception to throw.
+     *
+     * @see [onpopstate](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate)
+     *
+     * @returns Subscribed events.
+     */
+    subscribe(onNext: (value: PopStateEvent_2) => void, onThrow?: ((exception: any) => void) | null, onReturn?: (() => void) | null): SubscriptionLike;
+    /**
+     * Normalizes URL parameters by prepending with `?` if needed.
+     *
+     * @param  params String of URL parameters.
+     *
+     * @returns The normalized URL parameters string.
+     */
+    static normalizeQueryParams: (params: string) => string;
+    /**
+     * Joins two parts of a URL with a slash if needed.
+     *
+     * @param start  URL string
+     * @param end    URL string
+     *
+     *
+     * @returns The joined URL string.
+     */
+    static joinWithSlash: (start: string, end: string) => string;
+    /**
+     * Removes a trailing slash from a URL string if needed.
+     * Looks for the first occurrence of either `#`, `?`, or the end of the
+     * line as `/` characters and removes the trailing slash if one exists.
+     *
+     * @param url URL string.
+     *
+     * @returns The URL string, modified if needed.
+     */
+    static stripTrailingSlash: (url: string) => string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<Location_2, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<Location_2>;
 }
+export { Location_2 as Location }
 
 /**
- * Identifies requests with the method JSONP and
- * shifts them to the `JsonpClientBackend`.
- *
- * @see {@link HttpInterceptor}
+ * @description
+ * Indicates when a location is initialized.
  *
  * @publicApi
  */
-export declare class JsonpInterceptor {
+export declare const LOCATION_INITIALIZED: InjectionToken<Promise<any>>;
+
+/**
+ * @description
+ * A serializable version of the event from `onPopState` or `onHashChange`
+ *
+ * @publicApi
+ */
+export declare interface LocationChangeEvent {
+    type: string;
+    state: any;
+}
+
+/**
+ * @publicApi
+ */
+export declare interface LocationChangeListener {
+    (event: LocationChangeEvent): any;
+}
+
+/**
+ * Enables the `Location` service to read route state from the browser's URL.
+ * Angular provides two strategies:
+ * `HashLocationStrategy` and `PathLocationStrategy`.
+ *
+ * Applications should use the `Router` or `Location` services to
+ * interact with application route state.
+ *
+ * For instance, `HashLocationStrategy` produces URLs like
+ * <code class="no-auto-link">http://example.com#/foo</code>,
+ * and `PathLocationStrategy` produces
+ * <code class="no-auto-link">http://example.com/foo</code> as an equivalent URL.
+ *
+ * See these two classes for more.
+ *
+ * @publicApi
+ */
+export declare abstract class LocationStrategy {
+    abstract path(includeHash?: boolean): string;
+    abstract prepareExternalUrl(internal: string): string;
+    abstract getState(): unknown;
+    abstract pushState(state: any, title: string, url: string, queryParams: string): void;
+    abstract replaceState(state: any, title: string, url: string, queryParams: string): void;
+    abstract forward(): void;
+    abstract back(): void;
+    historyGo?(relativePosition: number): void;
+    abstract onPopState(fn: LocationChangeListener): void;
+    abstract getBaseHref(): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<LocationStrategy, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<LocationStrategy>;
+}
+
+/**
+ * Transforms text to all lower case.
+ *
+ * @see {@link UpperCasePipe}
+ * @see {@link TitleCasePipe}
+ * @usageNotes
+ *
+ * The following example defines a view that allows the user to enter
+ * text, and then uses the pipe to convert the input text to all lower case.
+ *
+ * <code-example path="common/pipes/ts/lowerupper_pipe.ts" region='LowerUpperPipe'></code-example>
+ *
+ * @ngModule CommonModule
+ * @publicApi
+ */
+export declare class LowerCasePipe implements PipeTransform {
+    /**
+     * @param value The string to transform to lower case.
+     */
+    transform(value: string): string;
+    transform(value: null | undefined): null;
+    transform(value: string | null | undefined): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<LowerCasePipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<LowerCasePipe, "lowercase", true>;
+}
+
+/**
+ * @ngModule CommonModule
+ *
+ * @usageNotes
+ * ```
+ *     <some-element [ngClass]="'first second'">...</some-element>
+ *
+ *     <some-element [ngClass]="['first', 'second']">...</some-element>
+ *
+ *     <some-element [ngClass]="{'first': true, 'second': true, 'third': false}">...</some-element>
+ *
+ *     <some-element [ngClass]="stringExp|arrayExp|objExp">...</some-element>
+ *
+ *     <some-element [ngClass]="{'class1 class2 class3' : true}">...</some-element>
+ * ```
+ *
+ * @description
+ *
+ * Adds and removes CSS classes on an HTML element.
+ *
+ * The CSS classes are updated as follows, depending on the type of the expression evaluation:
+ * - `string` - the CSS classes listed in the string (space delimited) are added,
+ * - `Array` - the CSS classes declared as Array elements are added,
+ * - `Object` - keys are CSS classes that get added when the expression given in the value
+ *              evaluates to a truthy value, otherwise they are removed.
+ *
+ * @publicApi
+ */
+export declare class NgClass implements DoCheck {
+    private _iterableDiffers;
+    private _keyValueDiffers;
+    private _ngEl;
+    private _renderer;
+    private initialClasses;
+    private rawClass;
+    private stateMap;
+    constructor(_iterableDiffers: IterableDiffers, _keyValueDiffers: KeyValueDiffers, _ngEl: ElementRef, _renderer: Renderer2);
+    set klass(value: string);
+    set ngClass(value: string | string[] | Set<string> | {
+        [klass: string]: any;
+    } | null | undefined);
+    ngDoCheck(): void;
+    private _updateState;
+    private _applyStateDiff;
+    private _toggleClass;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgClass, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgClass, "[ngClass]", never, { "klass": { "alias": "class"; "required": false; }; "ngClass": { "alias": "ngClass"; "required": false; }; }, {}, never, never, true, never>;
+}
+
+/**
+ * Instantiates a {@link Component} type and inserts its Host View into the current View.
+ * `NgComponentOutlet` provides a declarative approach for dynamic component creation.
+ *
+ * `NgComponentOutlet` requires a component type, if a falsy value is set the view will clear and
+ * any existing component will be destroyed.
+ *
+ * @usageNotes
+ *
+ * ### Fine tune control
+ *
+ * You can control the component creation process by using the following optional attributes:
+ *
+ * * `ngComponentOutletInputs`: Optional component inputs object, which will be bind to the
+ * component.
+ *
+ * * `ngComponentOutletInjector`: Optional custom {@link Injector} that will be used as parent for
+ * the Component. Defaults to the injector of the current view container.
+ *
+ * * `ngComponentOutletContent`: Optional list of projectable nodes to insert into the content
+ * section of the component, if it exists.
+ *
+ * * `ngComponentOutletNgModule`: Optional NgModule class reference to allow loading another
+ * module dynamically, then loading a component from that module.
+ *
+ * * `ngComponentOutletNgModuleFactory`: Deprecated config option that allows providing optional
+ * NgModule factory to allow loading another module dynamically, then loading a component from that
+ * module. Use `ngComponentOutletNgModule` instead.
+ *
+ * ### Syntax
+ *
+ * Simple
+ * ```
+ * <ng-container *ngComponentOutlet="componentTypeExpression"></ng-container>
+ * ```
+ *
+ * With inputs
+ * ```
+ * <ng-container *ngComponentOutlet="componentTypeExpression;
+ *                                   inputs: inputsExpression;">
+ * </ng-container>
+ * ```
+ *
+ * Customized injector/content
+ * ```
+ * <ng-container *ngComponentOutlet="componentTypeExpression;
+ *                                   injector: injectorExpression;
+ *                                   content: contentNodesExpression;">
+ * </ng-container>
+ * ```
+ *
+ * Customized NgModule reference
+ * ```
+ * <ng-container *ngComponentOutlet="componentTypeExpression;
+ *                                   ngModule: ngModuleClass;">
+ * </ng-container>
+ * ```
+ *
+ * ### A simple example
+ *
+ * {@example common/ngComponentOutlet/ts/module.ts region='SimpleExample'}
+ *
+ * A more complete example with additional options:
+ *
+ * {@example common/ngComponentOutlet/ts/module.ts region='CompleteExample'}
+ *
+ * @publicApi
+ * @ngModule CommonModule
+ */
+export declare class NgComponentOutlet implements OnChanges, DoCheck, OnDestroy {
+    private _viewContainerRef;
+    ngComponentOutlet: Type<any> | null;
+    ngComponentOutletInputs?: Record<string, unknown>;
+    ngComponentOutletInjector?: Injector;
+    ngComponentOutletContent?: any[][];
+    ngComponentOutletNgModule?: Type<any>;
+    /**
+     * @deprecated This input is deprecated, use `ngComponentOutletNgModule` instead.
+     */
+    ngComponentOutletNgModuleFactory?: NgModuleFactory<any>;
+    private _componentRef;
+    private _moduleRef;
+    /**
+     * A helper data structure that allows us to track inputs that were part of the
+     * ngComponentOutletInputs expression. Tracking inputs is necessary for proper removal of ones
+     * that are no longer referenced.
+     */
+    private _inputsUsed;
+    constructor(_viewContainerRef: ViewContainerRef);
+    private _needToReCreateNgModuleInstance;
+    private _needToReCreateComponentInstance;
+    /** @nodoc */
+    ngOnChanges(changes: SimpleChanges): void;
+    /** @nodoc */
+    ngDoCheck(): void;
+    /** @nodoc */
+    ngOnDestroy(): void;
+    private _applyInputStateDiff;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgComponentOutlet, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgComponentOutlet, "[ngComponentOutlet]", never, { "ngComponentOutlet": { "alias": "ngComponentOutlet"; "required": false; }; "ngComponentOutletInputs": { "alias": "ngComponentOutletInputs"; "required": false; }; "ngComponentOutletInjector": { "alias": "ngComponentOutletInjector"; "required": false; }; "ngComponentOutletContent": { "alias": "ngComponentOutletContent"; "required": false; }; "ngComponentOutletNgModule": { "alias": "ngComponentOutletNgModule"; "required": false; }; "ngComponentOutletNgModuleFactory": { "alias": "ngComponentOutletNgModuleFactory"; "required": false; }; }, {}, never, never, true, never>;
+}
+
+/**
+ * A [structural directive](guide/structural-directives) that renders
+ * a template for each item in a collection.
+ * The directive is placed on an element, which becomes the parent
+ * of the cloned templates.
+ *
+ * The `ngForOf` directive is generally used in the
+ * [shorthand form](guide/structural-directives#asterisk) `*ngFor`.
+ * In this form, the template to be rendered for each iteration is the content
+ * of an anchor element containing the directive.
+ *
+ * The following example shows the shorthand syntax with some options,
+ * contained in an `<li>` element.
+ *
+ * ```
+ * <li *ngFor="let item of items; index as i; trackBy: trackByFn">...</li>
+ * ```
+ *
+ * The shorthand form expands into a long form that uses the `ngForOf` selector
+ * on an `<ng-template>` element.
+ * The content of the `<ng-template>` element is the `<li>` element that held the
+ * short-form directive.
+ *
+ * Here is the expanded version of the short-form example.
+ *
+ * ```
+ * <ng-template ngFor let-item [ngForOf]="items" let-i="index" [ngForTrackBy]="trackByFn">
+ *   <li>...</li>
+ * </ng-template>
+ * ```
+ *
+ * Angular automatically expands the shorthand syntax as it compiles the template.
+ * The context for each embedded view is logically merged to the current component
+ * context according to its lexical position.
+ *
+ * When using the shorthand syntax, Angular allows only [one structural directive
+ * on an element](guide/structural-directives#one-per-element).
+ * If you want to iterate conditionally, for example,
+ * put the `*ngIf` on a container element that wraps the `*ngFor` element.
+ * For further discussion, see
+ * [Structural Directives](guide/structural-directives#one-per-element).
+ *
+ * @usageNotes
+ *
+ * ### Local variables
+ *
+ * `NgForOf` provides exported values that can be aliased to local variables.
+ * For example:
+ *
+ *  ```
+ * <li *ngFor="let user of users; index as i; first as isFirst">
+ *    {{i}}/{{users.length}}. {{user}} <span *ngIf="isFirst">default</span>
+ * </li>
+ * ```
+ *
+ * The following exported values can be aliased to local variables:
+ *
+ * - `$implicit: T`: The value of the individual items in the iterable (`ngForOf`).
+ * - `ngForOf: NgIterable<T>`: The value of the iterable expression. Useful when the expression is
+ * more complex then a property access, for example when using the async pipe (`userStreams |
+ * async`).
+ * - `index: number`: The index of the current item in the iterable.
+ * - `count: number`: The length of the iterable.
+ * - `first: boolean`: True when the item is the first item in the iterable.
+ * - `last: boolean`: True when the item is the last item in the iterable.
+ * - `even: boolean`: True when the item has an even index in the iterable.
+ * - `odd: boolean`: True when the item has an odd index in the iterable.
+ *
+ * ### Change propagation
+ *
+ * When the contents of the iterator changes, `NgForOf` makes the corresponding changes to the DOM:
+ *
+ * * When an item is added, a new instance of the template is added to the DOM.
+ * * When an item is removed, its template instance is removed from the DOM.
+ * * When items are reordered, their respective templates are reordered in the DOM.
+ *
+ * Angular uses object identity to track insertions and deletions within the iterator and reproduce
+ * those changes in the DOM. This has important implications for animations and any stateful
+ * controls that are present, such as `<input>` elements that accept user input. Inserted rows can
+ * be animated in, deleted rows can be animated out, and unchanged rows retain any unsaved state
+ * such as user input.
+ * For more on animations, see [Transitions and Triggers](guide/transition-and-triggers).
+ *
+ * The identities of elements in the iterator can change while the data does not.
+ * This can happen, for example, if the iterator is produced from an RPC to the server, and that
+ * RPC is re-run. Even if the data hasn't changed, the second response produces objects with
+ * different identities, and Angular must tear down the entire DOM and rebuild it (as if all old
+ * elements were deleted and all new elements inserted).
+ *
+ * To avoid this expensive operation, you can customize the default tracking algorithm.
+ * by supplying the `trackBy` option to `NgForOf`.
+ * `trackBy` takes a function that has two arguments: `index` and `item`.
+ * If `trackBy` is given, Angular tracks changes by the return value of the function.
+ *
+ * @see [Structural Directives](guide/structural-directives)
+ * @ngModule CommonModule
+ * @publicApi
+ */
+declare class NgForOf<T, U extends NgIterable<T> = NgIterable<T>> implements DoCheck {
+    private _viewContainer;
+    private _template;
+    private _differs;
+    /**
+     * The value of the iterable expression, which can be used as a
+     * [template input variable](guide/structural-directives#shorthand).
+     */
+    set ngForOf(ngForOf: U & NgIterable<T> | undefined | null);
+    /**
+     * Specifies a custom `TrackByFunction` to compute the identity of items in an iterable.
+     *
+     * If a custom `TrackByFunction` is not provided, `NgForOf` will use the item's [object
+     * identity](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
+     * as the key.
+     *
+     * `NgForOf` uses the computed key to associate items in an iterable with DOM elements
+     * it produces for these items.
+     *
+     * A custom `TrackByFunction` is useful to provide good user experience in cases when items in an
+     * iterable rendered using `NgForOf` have a natural identifier (for example, custom ID or a
+     * primary key), and this iterable could be updated with new object instances that still
+     * represent the same underlying entity (for example, when data is re-fetched from the server,
+     * and the iterable is recreated and re-rendered, but most of the data is still the same).
+     *
+     * @see {@link TrackByFunction}
+     */
+    set ngForTrackBy(fn: TrackByFunction<T>);
+    get ngForTrackBy(): TrackByFunction<T>;
+    private _ngForOf;
+    private _ngForOfDirty;
+    private _differ;
+    private _trackByFn;
+    constructor(_viewContainer: ViewContainerRef, _template: TemplateRef<NgForOfContext<T, U>>, _differs: IterableDiffers);
+    /**
+     * A reference to the template that is stamped out for each item in the iterable.
+     * @see [template reference variable](guide/template-reference-variables)
+     */
+    set ngForTemplate(value: TemplateRef<NgForOfContext<T, U>>);
+    /**
+     * Applies the changes when needed.
+     * @nodoc
+     */
+    ngDoCheck(): void;
+    private _applyChanges;
+    /**
+     * Asserts the correct type of the context for the template that `NgForOf` will render.
+     *
+     * The presence of this method is a signal to the Ivy template type-check compiler that the
+     * `NgForOf` structural directive renders its template with a specific context type.
+     */
+    static ngTemplateContextGuard<T, U extends NgIterable<T>>(dir: NgForOf<T, U>, ctx: any): ctx is NgForOfContext<T, U>;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgForOf<any, any>, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgForOf<any, any>, "[ngFor][ngForOf]", never, { "ngForOf": { "alias": "ngForOf"; "required": false; }; "ngForTrackBy": { "alias": "ngForTrackBy"; "required": false; }; "ngForTemplate": { "alias": "ngForTemplate"; "required": false; }; }, {}, never, never, true, never>;
+}
+export { NgForOf as NgFor }
+export { NgForOf }
+
+/**
+ * @publicApi
+ */
+export declare class NgForOfContext<T, U extends NgIterable<T> = NgIterable<T>> {
+    $implicit: T;
+    ngForOf: U;
+    index: number;
+    count: number;
+    constructor($implicit: T, ngForOf: U, index: number, count: number);
+    get first(): boolean;
+    get last(): boolean;
+    get even(): boolean;
+    get odd(): boolean;
+}
+
+/**
+ * A structural directive that conditionally includes a template based on the value of
+ * an expression coerced to Boolean.
+ * When the expression evaluates to true, Angular renders the template
+ * provided in a `then` clause, and when  false or null,
+ * Angular renders the template provided in an optional `else` clause. The default
+ * template for the `else` clause is blank.
+ *
+ * A [shorthand form](guide/structural-directives#asterisk) of the directive,
+ * `*ngIf="condition"`, is generally used, provided
+ * as an attribute of the anchor element for the inserted template.
+ * Angular expands this into a more explicit version, in which the anchor element
+ * is contained in an `<ng-template>` element.
+ *
+ * Simple form with shorthand syntax:
+ *
+ * ```
+ * <div *ngIf="condition">Content to render when condition is true.</div>
+ * ```
+ *
+ * Simple form with expanded syntax:
+ *
+ * ```
+ * <ng-template [ngIf]="condition"><div>Content to render when condition is
+ * true.</div></ng-template>
+ * ```
+ *
+ * Form with an "else" block:
+ *
+ * ```
+ * <div *ngIf="condition; else elseBlock">Content to render when condition is true.</div>
+ * <ng-template #elseBlock>Content to render when condition is false.</ng-template>
+ * ```
+ *
+ * Shorthand form with "then" and "else" blocks:
+ *
+ * ```
+ * <div *ngIf="condition; then thenBlock else elseBlock"></div>
+ * <ng-template #thenBlock>Content to render when condition is true.</ng-template>
+ * <ng-template #elseBlock>Content to render when condition is false.</ng-template>
+ * ```
+ *
+ * Form with storing the value locally:
+ *
+ * ```
+ * <div *ngIf="condition as value; else elseBlock">{{value}}</div>
+ * <ng-template #elseBlock>Content to render when value is null.</ng-template>
+ * ```
+ *
+ * @usageNotes
+ *
+ * The `*ngIf` directive is most commonly used to conditionally show an inline template,
+ * as seen in the following  example.
+ * The default `else` template is blank.
+ *
+ * {@example common/ngIf/ts/module.ts region='NgIfSimple'}
+ *
+ * ### Showing an alternative template using `else`
+ *
+ * To display a template when `expression` evaluates to false, use an `else` template
+ * binding as shown in the following example.
+ * The `else` binding points to an `<ng-template>`  element labeled `#elseBlock`.
+ * The template can be defined anywhere in the component view, but is typically placed right after
+ * `ngIf` for readability.
+ *
+ * {@example common/ngIf/ts/module.ts region='NgIfElse'}
+ *
+ * ### Using an external `then` template
+ *
+ * In the previous example, the then-clause template is specified inline, as the content of the
+ * tag that contains the `ngIf` directive. You can also specify a template that is defined
+ * externally, by referencing a labeled `<ng-template>` element. When you do this, you can
+ * change which template to use at runtime, as shown in the following example.
+ *
+ * {@example common/ngIf/ts/module.ts region='NgIfThenElse'}
+ *
+ * ### Storing a conditional result in a variable
+ *
+ * You might want to show a set of properties from the same object. If you are waiting
+ * for asynchronous data, the object can be undefined.
+ * In this case, you can use `ngIf` and store the result of the condition in a local
+ * variable as shown in the following example.
+ *
+ * {@example common/ngIf/ts/module.ts region='NgIfAs'}
+ *
+ * This code uses only one `AsyncPipe`, so only one subscription is created.
+ * The conditional statement stores the result of `userStream|async` in the local variable `user`.
+ * You can then bind the local `user` repeatedly.
+ *
+ * The conditional displays the data only if `userStream` returns a value,
+ * so you don't need to use the
+ * safe-navigation-operator (`?.`)
+ * to guard against null values when accessing properties.
+ * You can display an alternative template while waiting for the data.
+ *
+ * ### Shorthand syntax
+ *
+ * The shorthand syntax `*ngIf` expands into two separate template specifications
+ * for the "then" and "else" clauses. For example, consider the following shorthand statement,
+ * that is meant to show a loading page while waiting for data to be loaded.
+ *
+ * ```
+ * <div class="hero-list" *ngIf="heroes else loading">
+ *  ...
+ * </div>
+ *
+ * <ng-template #loading>
+ *  <div>Loading...</div>
+ * </ng-template>
+ * ```
+ *
+ * You can see that the "else" clause references the `<ng-template>`
+ * with the `#loading` label, and the template for the "then" clause
+ * is provided as the content of the anchor element.
+ *
+ * However, when Angular expands the shorthand syntax, it creates
+ * another `<ng-template>` tag, with `ngIf` and `ngIfElse` directives.
+ * The anchor element containing the template for the "then" clause becomes
+ * the content of this unlabeled `<ng-template>` tag.
+ *
+ * ```
+ * <ng-template [ngIf]="heroes" [ngIfElse]="loading">
+ *  <div class="hero-list">
+ *   ...
+ *  </div>
+ * </ng-template>
+ *
+ * <ng-template #loading>
+ *  <div>Loading...</div>
+ * </ng-template>
+ * ```
+ *
+ * The presence of the implicit template object has implications for the nesting of
+ * structural directives. For more on this subject, see
+ * [Structural Directives](guide/structural-directives#one-per-element).
+ *
+ * @ngModule CommonModule
+ * @publicApi
+ */
+export declare class NgIf<T = unknown> {
+    private _viewContainer;
+    private _context;
+    private _thenTemplateRef;
+    private _elseTemplateRef;
+    private _thenViewRef;
+    private _elseViewRef;
+    constructor(_viewContainer: ViewContainerRef, templateRef: TemplateRef<NgIfContext<T>>);
+    /**
+     * The Boolean expression to evaluate as the condition for showing a template.
+     */
+    set ngIf(condition: T);
+    /**
+     * A template to show if the condition expression evaluates to true.
+     */
+    set ngIfThen(templateRef: TemplateRef<NgIfContext<T>> | null);
+    /**
+     * A template to show if the condition expression evaluates to false.
+     */
+    set ngIfElse(templateRef: TemplateRef<NgIfContext<T>> | null);
+    private _updateView;
+    /**
+     * Assert the correct type of the expression bound to the `ngIf` input within the template.
+     *
+     * The presence of this static field is a signal to the Ivy template type check compiler that
+     * when the `NgIf` structural directive renders its template, the type of the expression bound
+     * to `ngIf` should be narrowed in some way. For `NgIf`, the binding expression itself is used to
+     * narrow its type, which allows the strictNullChecks feature of TypeScript to work with `NgIf`.
+     */
+    static ngTemplateGuard_ngIf: 'binding';
+    /**
+     * Asserts the correct type of the context for the template that `NgIf` will render.
+     *
+     * The presence of this method is a signal to the Ivy template type-check compiler that the
+     * `NgIf` structural directive renders its template with a specific context type.
+     */
+    static ngTemplateContextGuard<T>(dir: NgIf<T>, ctx: any): ctx is NgIfContext<Exclude<T, false | 0 | '' | null | undefined>>;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgIf<any>, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgIf<any>, "[ngIf]", never, { "ngIf": { "alias": "ngIf"; "required": false; }; "ngIfThen": { "alias": "ngIfThen"; "required": false; }; "ngIfElse": { "alias": "ngIfElse"; "required": false; }; }, {}, never, never, true, never>;
+}
+
+/**
+ * @publicApi
+ */
+export declare class NgIfContext<T = unknown> {
+    $implicit: T;
+    ngIf: T;
+}
+
+/**
+ * Returns the plural case based on the locale
+ *
+ * @publicApi
+ */
+export declare class NgLocaleLocalization extends NgLocalization {
+    protected locale: string;
+    constructor(locale: string);
+    getPluralCategory(value: any, locale?: string): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgLocaleLocalization, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<NgLocaleLocalization>;
+}
+
+/**
+ * @publicApi
+ */
+export declare abstract class NgLocalization {
+    abstract getPluralCategory(value: any, locale?: string): string;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgLocalization, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<NgLocalization>;
+}
+
+/**
+ * Directive that improves image loading performance by enforcing best practices.
+ *
+ * `NgOptimizedImage` ensures that the loading of the Largest Contentful Paint (LCP) image is
+ * prioritized by:
+ * - Automatically setting the `fetchpriority` attribute on the `<img>` tag
+ * - Lazy loading non-priority images by default
+ * - Asserting that there is a corresponding preconnect link tag in the document head
+ *
+ * In addition, the directive:
+ * - Generates appropriate asset URLs if a corresponding `ImageLoader` function is provided
+ * - Automatically generates a srcset
+ * - Requires that `width` and `height` are set
+ * - Warns if `width` or `height` have been set incorrectly
+ * - Warns if the image will be visually distorted when rendered
+ *
+ * @usageNotes
+ * The `NgOptimizedImage` directive is marked as [standalone](guide/standalone-components) and can
+ * be imported directly.
+ *
+ * Follow the steps below to enable and use the directive:
+ * 1. Import it into the necessary NgModule or a standalone Component.
+ * 2. Optionally provide an `ImageLoader` if you use an image hosting service.
+ * 3. Update the necessary `<img>` tags in templates and replace `src` attributes with `ngSrc`.
+ * Using a `ngSrc` allows the directive to control when the `src` gets set, which triggers an image
+ * download.
+ *
+ * Step 1: import the `NgOptimizedImage` directive.
+ *
+ * ```typescript
+ * import { NgOptimizedImage } from '@angular/common';
+ *
+ * // Include it into the necessary NgModule
+ * @NgModule({
+ *   imports: [NgOptimizedImage],
+ * })
+ * class AppModule {}
+ *
+ * // ... or a standalone Component
+ * @Component({
+ *   standalone: true
+ *   imports: [NgOptimizedImage],
+ * })
+ * class MyStandaloneComponent {}
+ * ```
+ *
+ * Step 2: configure a loader.
+ *
+ * To use the **default loader**: no additional code changes are necessary. The URL returned by the
+ * generic loader will always match the value of "src". In other words, this loader applies no
+ * transformations to the resource URL and the value of the `ngSrc` attribute will be used as is.
+ *
+ * To use an existing loader for a **third-party image service**: add the provider factory for your
+ * chosen service to the `providers` array. In the example below, the Imgix loader is used:
+ *
+ * ```typescript
+ * import {provideImgixLoader} from '@angular/common';
+ *
+ * // Call the function and add the result to the `providers` array:
+ * providers: [
+ *   provideImgixLoader("https://my.base.url/"),
+ * ],
+ * ```
+ *
+ * The `NgOptimizedImage` directive provides the following functions:
+ * - `provideCloudflareLoader`
+ * - `provideCloudinaryLoader`
+ * - `provideImageKitLoader`
+ * - `provideImgixLoader`
+ *
+ * If you use a different image provider, you can create a custom loader function as described
+ * below.
+ *
+ * To use a **custom loader**: provide your loader function as a value for the `IMAGE_LOADER` DI
+ * token.
+ *
+ * ```typescript
+ * import {IMAGE_LOADER, ImageLoaderConfig} from '@angular/common';
+ *
+ * // Configure the loader using the `IMAGE_LOADER` token.
+ * providers: [
+ *   {
+ *      provide: IMAGE_LOADER,
+ *      useValue: (config: ImageLoaderConfig) => {
+ *        return `https://example.com/${config.src}-${config.width}.jpg}`;
+ *      }
+ *   },
+ * ],
+ * ```
+ *
+ * Step 3: update `<img>` tags in templates to use `ngSrc` instead of `src`.
+ *
+ * ```
+ * <img ngSrc="logo.png" width="200" height="100">
+ * ```
+ *
+ * @publicApi
+ */
+export declare class NgOptimizedImage implements OnInit, OnChanges, OnDestroy {
+    private imageLoader;
+    private config;
+    private renderer;
+    private imgElement;
     private injector;
-    constructor(injector: EnvironmentInjector);
+    private readonly isServer;
+    private readonly preloadLinkCreator;
+    private lcpObserver;
     /**
-     * Identifies and handles a given JSONP request.
-     * @param initialRequest The outgoing request object to handle.
-     * @param next The next interceptor in the chain, or the backend
-     * if no interceptors remain in the chain.
-     * @returns An observable of the event stream.
+     * Calculate the rewritten `src` once and store it.
+     * This is needed to avoid repetitive calculations and make sure the directive cleanup in the
+     * `ngOnDestroy` does not rely on the `IMAGE_LOADER` logic (which in turn can rely on some other
+     * instance that might be already destroyed).
      */
-    intercept(initialRequest: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>>;
-    static ɵfac: i0.ɵɵFactoryDeclaration<JsonpInterceptor, never>;
-    static ɵprov: i0.ɵɵInjectableDeclaration<JsonpInterceptor>;
+    private _renderedSrc;
+    /**
+     * Name of the source image.
+     * Image name will be processed by the image loader and the final URL will be applied as the `src`
+     * property of the image.
+     */
+    ngSrc: string;
+    /**
+     * A comma separated list of width or density descriptors.
+     * The image name will be taken from `ngSrc` and combined with the list of width or density
+     * descriptors to generate the final `srcset` property of the image.
+     *
+     * Example:
+     * ```
+     * <img ngSrc="hello.jpg" ngSrcset="100w, 200w" />  =>
+     * <img src="path/hello.jpg" srcset="path/hello.jpg?w=100 100w, path/hello.jpg?w=200 200w" />
+     * ```
+     */
+    ngSrcset: string;
+    /**
+     * The base `sizes` attribute passed through to the `<img>` element.
+     * Providing sizes causes the image to create an automatic responsive srcset.
+     */
+    sizes?: string;
+    /**
+     * For responsive images: the intrinsic width of the image in pixels.
+     * For fixed size images: the desired rendered width of the image in pixels.
+     */
+    width: number | undefined;
+    /**
+     * For responsive images: the intrinsic height of the image in pixels.
+     * For fixed size images: the desired rendered height of the image in pixels.* The intrinsic
+     * height of the image in pixels.
+     */
+    height: number | undefined;
+    /**
+     * The desired loading behavior (lazy, eager, or auto). Defaults to `lazy`,
+     * which is recommended for most images.
+     *
+     * Warning: Setting images as loading="eager" or loading="auto" marks them
+     * as non-priority images and can hurt loading performance. For images which
+     * may be the LCP element, use the `priority` attribute instead of `loading`.
+     */
+    loading?: 'lazy' | 'eager' | 'auto';
+    /**
+     * Indicates whether this image should have a high priority.
+     */
+    priority: boolean;
+    /**
+     * Data to pass through to custom loaders.
+     */
+    loaderParams?: {
+        [key: string]: any;
+    };
+    /**
+     * Disables automatic srcset generation for this image.
+     */
+    disableOptimizedSrcset: boolean;
+    /**
+     * Sets the image to "fill mode", which eliminates the height/width requirement and adds
+     * styles such that the image fills its containing element.
+     */
+    fill: boolean;
+    /** @nodoc */
+    ngOnInit(): void;
+    private setHostAttributes;
+    /** @nodoc */
+    ngOnChanges(changes: SimpleChanges): void;
+    private callImageLoader;
+    private getLoadingBehavior;
+    private getFetchPriority;
+    private getRewrittenSrc;
+    private getRewrittenSrcset;
+    private getAutomaticSrcset;
+    private getResponsiveSrcset;
+    private updateSrcAndSrcset;
+    private getFixedSrcset;
+    private shouldGenerateAutomaticSrcset;
+    /** @nodoc */
+    ngOnDestroy(): void;
+    private setHostAttribute;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgOptimizedImage, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgOptimizedImage, "img[ngSrc]", never, { "ngSrc": { "alias": "ngSrc"; "required": true; }; "ngSrcset": { "alias": "ngSrcset"; "required": false; }; "sizes": { "alias": "sizes"; "required": false; }; "width": { "alias": "width"; "required": false; }; "height": { "alias": "height"; "required": false; }; "loading": { "alias": "loading"; "required": false; }; "priority": { "alias": "priority"; "required": false; }; "loaderParams": { "alias": "loaderParams"; "required": false; }; "disableOptimizedSrcset": { "alias": "disableOptimizedSrcset"; "required": false; }; "fill": { "alias": "fill"; "required": false; }; "src": { "alias": "src"; "required": false; }; "srcset": { "alias": "srcset"; "required": false; }; }, {}, never, never, true, never>;
+    static ngAcceptInputType_ngSrc: string | i1_2.SafeValue;
+    static ngAcceptInputType_width: unknown;
+    static ngAcceptInputType_height: unknown;
+    static ngAcceptInputType_priority: unknown;
+    static ngAcceptInputType_disableOptimizedSrcset: unknown;
+    static ngAcceptInputType_fill: unknown;
 }
 
 /**
- * Configures Angular's `HttpClient` service to be available for injection.
+ * @ngModule CommonModule
  *
- * By default, `HttpClient` will be configured for injection with its default options for XSRF
- * protection of outgoing requests. Additional configuration options can be provided by passing
- * feature functions to `provideHttpClient`. For example, HTTP interceptors can be added using the
- * `withInterceptors(...)` feature.
+ * @usageNotes
+ * ```
+ * <some-element [ngPlural]="value">
+ *   <ng-template ngPluralCase="=0">there is nothing</ng-template>
+ *   <ng-template ngPluralCase="=1">there is one</ng-template>
+ *   <ng-template ngPluralCase="few">there are a few</ng-template>
+ * </some-element>
+ * ```
  *
- * @see {@link withInterceptors}
- * @see {@link withInterceptorsFromDi}
- * @see {@link withXsrfConfiguration}
- * @see {@link withNoXsrfProtection}
- * @see {@link withJsonpSupport}
- * @see {@link withRequestsMadeViaParent}
- * @see {@link withFetch}
- */
-export declare function provideHttpClient(...features: HttpFeature<HttpFeatureKind>[]): EnvironmentProviders;
-
-/**
- * Configures the current `HttpClient` instance to make requests using the fetch API.
+ * @description
  *
- * This `FetchBackend` requires the support of the Fetch API which is available on all evergreen
- * browsers and on NodeJS from v18 onward.
+ * Adds / removes DOM sub-trees based on a numeric value. Tailored for pluralization.
  *
- * Note: The Fetch API doesn't support progress report on uploads.
+ * Displays DOM sub-trees that match the switch expression value, or failing that, DOM sub-trees
+ * that match the switch expression's pluralization category.
+ *
+ * To use this directive you must provide a container element that sets the `[ngPlural]` attribute
+ * to a switch expression. Inner elements with a `[ngPluralCase]` will display based on their
+ * expression:
+ * - if `[ngPluralCase]` is set to a value starting with `=`, it will only display if the value
+ *   matches the switch expression exactly,
+ * - otherwise, the view will be treated as a "category match", and will only display if exact
+ *   value matches aren't found and the value maps to its category for the defined locale.
+ *
+ * See http://cldr.unicode.org/index/cldr-spec/plural-rules
  *
  * @publicApi
- * @developerPreview
  */
-export declare function withFetch(): HttpFeature<HttpFeatureKind.Fetch>;
+export declare class NgPlural {
+    private _localization;
+    private _activeView?;
+    private _caseViews;
+    constructor(_localization: NgLocalization);
+    set ngPlural(value: number);
+    addCase(value: string, switchView: SwitchView): void;
+    private _updateView;
+    private _clearViews;
+    private _activateView;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgPlural, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgPlural, "[ngPlural]", never, { "ngPlural": { "alias": "ngPlural"; "required": false; }; }, {}, never, never, true, never>;
+}
 
 /**
- * Adds one or more functional-style HTTP interceptors to the configuration of the `HttpClient`
- * instance.
+ * @ngModule CommonModule
  *
- * @see {@link HttpInterceptorFn}
- * @see {@link provideHttpClient}
+ * @description
+ *
+ * Creates a view that will be added/removed from the parent {@link NgPlural} when the
+ * given expression matches the plural expression according to CLDR rules.
+ *
+ * @usageNotes
+ * ```
+ * <some-element [ngPlural]="value">
+ *   <ng-template ngPluralCase="=0">...</ng-template>
+ *   <ng-template ngPluralCase="other">...</ng-template>
+ * </some-element>
+ *```
+ *
+ * See {@link NgPlural} for more details and example.
+ *
  * @publicApi
  */
-export declare function withInterceptors(interceptorFns: HttpInterceptorFn[]): HttpFeature<HttpFeatureKind.Interceptors>;
+export declare class NgPluralCase {
+    value: string;
+    constructor(value: string, template: TemplateRef<Object>, viewContainer: ViewContainerRef, ngPlural: NgPlural);
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgPluralCase, [{ attribute: "ngPluralCase"; }, null, null, { host: true; }]>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgPluralCase, "[ngPluralCase]", never, {}, {}, never, never, true, never>;
+}
 
 /**
- * Includes class-based interceptors configured using a multi-provider in the current injector into
- * the configured `HttpClient` instance.
+ * @ngModule CommonModule
  *
- * Prefer `withInterceptors` and functional interceptors instead, as support for DI-provided
- * interceptors may be phased out in a later release.
+ * @usageNotes
  *
- * @see {@link HttpInterceptor}
- * @see {@link HTTP_INTERCEPTORS}
- * @see {@link provideHttpClient}
+ * Set the font of the containing element to the result of an expression.
+ *
+ * ```
+ * <some-element [ngStyle]="{'font-style': styleExp}">...</some-element>
+ * ```
+ *
+ * Set the width of the containing element to a pixel value returned by an expression.
+ *
+ * ```
+ * <some-element [ngStyle]="{'max-width.px': widthExp}">...</some-element>
+ * ```
+ *
+ * Set a collection of style values using an expression that returns key-value pairs.
+ *
+ * ```
+ * <some-element [ngStyle]="objExp">...</some-element>
+ * ```
+ *
+ * @description
+ *
+ * An attribute directive that updates styles for the containing HTML element.
+ * Sets one or more style properties, specified as colon-separated key-value pairs.
+ * The key is a style name, with an optional `.<unit>` suffix
+ * (such as 'top.px', 'font-style.em').
+ * The value is an expression to be evaluated.
+ * The resulting non-null value, expressed in the given unit,
+ * is assigned to the given style property.
+ * If the result of evaluation is null, the corresponding style is removed.
+ *
+ * @publicApi
  */
-export declare function withInterceptorsFromDi(): HttpFeature<HttpFeatureKind.LegacyInterceptors>;
+export declare class NgStyle implements DoCheck {
+    private _ngEl;
+    private _differs;
+    private _renderer;
+    private _ngStyle;
+    private _differ;
+    constructor(_ngEl: ElementRef, _differs: KeyValueDiffers, _renderer: Renderer2);
+    set ngStyle(values: {
+        [klass: string]: any;
+    } | null | undefined);
+    ngDoCheck(): void;
+    private _setStyle;
+    private _applyChanges;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgStyle, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgStyle, "[ngStyle]", never, { "ngStyle": { "alias": "ngStyle"; "required": false; }; }, {}, never, never, true, never>;
+}
 
 /**
- * Add JSONP support to the configuration of the current `HttpClient` instance.
+ * @ngModule CommonModule
  *
- * @see {@link provideHttpClient}
+ * @description
+ * The `[ngSwitch]` directive on a container specifies an expression to match against.
+ * The expressions to match are provided by `ngSwitchCase` directives on views within the container.
+ * - Every view that matches is rendered.
+ * - If there are no matches, a view with the `ngSwitchDefault` directive is rendered.
+ * - Elements within the `[NgSwitch]` statement but outside of any `NgSwitchCase`
+ * or `ngSwitchDefault` directive are preserved at the location.
+ *
+ * @usageNotes
+ * Define a container element for the directive, and specify the switch expression
+ * to match against as an attribute:
+ *
+ * ```
+ * <container-element [ngSwitch]="switch_expression">
+ * ```
+ *
+ * Within the container, `*ngSwitchCase` statements specify the match expressions
+ * as attributes. Include `*ngSwitchDefault` as the final case.
+ *
+ * ```
+ * <container-element [ngSwitch]="switch_expression">
+ *    <some-element *ngSwitchCase="match_expression_1">...</some-element>
+ * ...
+ *    <some-element *ngSwitchDefault>...</some-element>
+ * </container-element>
+ * ```
+ *
+ * ### Usage Examples
+ *
+ * The following example shows how to use more than one case to display the same view:
+ *
+ * ```
+ * <container-element [ngSwitch]="switch_expression">
+ *   <!-- the same view can be shown in more than one case -->
+ *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
+ *   <some-element *ngSwitchCase="match_expression_2">...</some-element>
+ *   <some-other-element *ngSwitchCase="match_expression_3">...</some-other-element>
+ *   <!--default case when there are no matches -->
+ *   <some-element *ngSwitchDefault>...</some-element>
+ * </container-element>
+ * ```
+ *
+ * The following example shows how cases can be nested:
+ * ```
+ * <container-element [ngSwitch]="switch_expression">
+ *       <some-element *ngSwitchCase="match_expression_1">...</some-element>
+ *       <some-element *ngSwitchCase="match_expression_2">...</some-element>
+ *       <some-other-element *ngSwitchCase="match_expression_3">...</some-other-element>
+ *       <ng-container *ngSwitchCase="match_expression_3">
+ *         <!-- use a ng-container to group multiple root nodes -->
+ *         <inner-element></inner-element>
+ *         <inner-other-element></inner-other-element>
+ *       </ng-container>
+ *       <some-element *ngSwitchDefault>...</some-element>
+ *     </container-element>
+ * ```
+ *
+ * @publicApi
+ * @see {@link NgSwitchCase}
+ * @see {@link NgSwitchDefault}
+ * @see [Structural Directives](guide/structural-directives)
+ *
  */
-export declare function withJsonpSupport(): HttpFeature<HttpFeatureKind.JsonpSupport>;
+export declare class NgSwitch {
+    private _defaultViews;
+    private _defaultUsed;
+    private _caseCount;
+    private _lastCaseCheckIndex;
+    private _lastCasesMatched;
+    private _ngSwitch;
+    set ngSwitch(newValue: any);
+    private _updateDefaultCases;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgSwitch, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgSwitch, "[ngSwitch]", never, { "ngSwitch": { "alias": "ngSwitch"; "required": false; }; }, {}, never, never, true, never>;
+}
 
 /**
- * Disables XSRF protection in the configuration of the current `HttpClient` instance.
+ * @ngModule CommonModule
  *
- * This feature is incompatible with the `withXsrfConfiguration` feature.
+ * @description
+ * Provides a switch case expression to match against an enclosing `ngSwitch` expression.
+ * When the expressions match, the given `NgSwitchCase` template is rendered.
+ * If multiple match expressions match the switch expression value, all of them are displayed.
  *
- * @see {@link provideHttpClient}
+ * @usageNotes
+ *
+ * Within a switch container, `*ngSwitchCase` statements specify the match expressions
+ * as attributes. Include `*ngSwitchDefault` as the final case.
+ *
+ * ```
+ * <container-element [ngSwitch]="switch_expression">
+ *   <some-element *ngSwitchCase="match_expression_1">...</some-element>
+ *   ...
+ *   <some-element *ngSwitchDefault>...</some-element>
+ * </container-element>
+ * ```
+ *
+ * Each switch-case statement contains an in-line HTML template or template reference
+ * that defines the subtree to be selected if the value of the match expression
+ * matches the value of the switch expression.
+ *
+ * Unlike JavaScript, which uses strict equality, Angular uses loose equality.
+ * This means that the empty string, `""` matches 0.
+ *
+ * @publicApi
+ * @see {@link NgSwitch}
+ * @see {@link NgSwitchDefault}
+ *
  */
-export declare function withNoXsrfProtection(): HttpFeature<HttpFeatureKind.NoXsrfProtection>;
+export declare class NgSwitchCase implements DoCheck {
+    private ngSwitch;
+    private _view;
+    /**
+     * Stores the HTML template to be selected on match.
+     */
+    ngSwitchCase: any;
+    constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef<Object>, ngSwitch: NgSwitch);
+    /**
+     * Performs case matching. For internal use only.
+     * @nodoc
+     */
+    ngDoCheck(): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgSwitchCase, [null, null, { optional: true; host: true; }]>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgSwitchCase, "[ngSwitchCase]", never, { "ngSwitchCase": { "alias": "ngSwitchCase"; "required": false; }; }, {}, never, never, true, never>;
+}
 
 /**
- * Configures the current `HttpClient` instance to make requests via the parent injector's
- * `HttpClient` instead of directly.
+ * @ngModule CommonModule
  *
- * By default, `provideHttpClient` configures `HttpClient` in its injector to be an independent
- * instance. For example, even if `HttpClient` is configured in the parent injector with
- * one or more interceptors, they will not intercept requests made via this instance.
+ * @description
  *
- * With this option enabled, once the request has passed through the current injector's
- * interceptors, it will be delegated to the parent injector's `HttpClient` chain instead of
- * dispatched directly, and interceptors in the parent configuration will be applied to the request.
+ * Creates a view that is rendered when no `NgSwitchCase` expressions
+ * match the `NgSwitch` expression.
+ * This statement should be the final case in an `NgSwitch`.
  *
- * If there are several `HttpClient` instances in the injector hierarchy, it's possible for
- * `withRequestsMadeViaParent` to be used at multiple levels, which will cause the request to
- * "bubble up" until either reaching the root level or an `HttpClient` which was not configured with
- * this option.
+ * @publicApi
+ * @see {@link NgSwitch}
+ * @see {@link NgSwitchCase}
  *
- * @see {@link provideHttpClient}
- * @developerPreview
  */
-export declare function withRequestsMadeViaParent(): HttpFeature<HttpFeatureKind.RequestsMadeViaParent>;
+export declare class NgSwitchDefault {
+    constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef<Object>, ngSwitch: NgSwitch);
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgSwitchDefault, [null, null, { optional: true; host: true; }]>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgSwitchDefault, "[ngSwitchDefault]", never, {}, {}, never, never, true, never>;
+}
 
 /**
- * Customizes the XSRF protection for the configuration of the current `HttpClient` instance.
+ * @ngModule CommonModule
  *
- * This feature is incompatible with the `withNoXsrfProtection` feature.
+ * @description
  *
- * @see {@link provideHttpClient}
+ * Inserts an embedded view from a prepared `TemplateRef`.
+ *
+ * You can attach a context object to the `EmbeddedViewRef` by setting `[ngTemplateOutletContext]`.
+ * `[ngTemplateOutletContext]` should be an object, the object's keys will be available for binding
+ * by the local template `let` declarations.
+ *
+ * @usageNotes
+ * ```
+ * <ng-container *ngTemplateOutlet="templateRefExp; context: contextExp"></ng-container>
+ * ```
+ *
+ * Using the key `$implicit` in the context object will set its value as default.
+ *
+ * ### Example
+ *
+ * {@example common/ngTemplateOutlet/ts/module.ts region='NgTemplateOutlet'}
+ *
+ * @publicApi
  */
-export declare function withXsrfConfiguration({ cookieName, headerName }: {
-    cookieName?: string;
-    headerName?: string;
-}): HttpFeature<HttpFeatureKind.CustomXsrfConfiguration>;
+export declare class NgTemplateOutlet<C = unknown> implements OnChanges {
+    private _viewContainerRef;
+    private _viewRef;
+    /**
+     * A context object to attach to the {@link EmbeddedViewRef}. This should be an
+     * object, the object's keys will be available for binding by the local template `let`
+     * declarations.
+     * Using the key `$implicit` in the context object will set its value as default.
+     */
+    ngTemplateOutletContext: C | null;
+    /**
+     * A string defining the template reference and optionally the context object for the template.
+     */
+    ngTemplateOutlet: TemplateRef<C> | null;
+    /** Injector to be used within the embedded view. */
+    ngTemplateOutletInjector: Injector | null;
+    constructor(_viewContainerRef: ViewContainerRef);
+    /** @nodoc */
+    ngOnChanges(changes: SimpleChanges): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<NgTemplateOutlet<any>, never>;
+    static ɵdir: i0.ɵɵDirectiveDeclaration<NgTemplateOutlet<any>, "[ngTemplateOutlet]", never, { "ngTemplateOutletContext": { "alias": "ngTemplateOutletContext"; "required": false; }; "ngTemplateOutlet": { "alias": "ngTemplateOutlet"; "required": false; }; "ngTemplateOutletInjector": { "alias": "ngTemplateOutletInjector"; "required": false; }; }, {}, never, never, true, never>;
+}
+
 
 /**
- * Returns the DI providers needed to enable HTTP transfer cache.
+ * Format styles that can be used to represent numbers.
+ * @see {@link getLocaleNumberFormat}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
  *
- * By default, when using server rendering, requests are performed twice: once on the server and
- * other one on the browser.
- *
- * When these providers are added, requests performed on the server are cached and reused during the
- * bootstrapping of the application in the browser thus avoiding duplicate requests and reducing
- * load time.
- *
+ * @publicApi
  */
-export declare function ɵwithHttpTransferCache(): Provider[];
+export declare enum NumberFormatStyle {
+    Decimal = 0,
+    Percent = 1,
+    Currency = 2,
+    Scientific = 3
+}
+
+/**
+ * Symbols that can be used to replace placeholders in number patterns.
+ * Examples are based on `en-US` values.
+ *
+ * @see {@link getLocaleNumberSymbol}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare enum NumberSymbol {
+    /**
+     * Decimal separator.
+     * For `en-US`, the dot character.
+     * Example: 2,345`.`67
+     */
+    Decimal = 0,
+    /**
+     * Grouping separator, typically for thousands.
+     * For `en-US`, the comma character.
+     * Example: 2`,`345.67
+     */
+    Group = 1,
+    /**
+     * List-item separator.
+     * Example: "one, two, and three"
+     */
+    List = 2,
+    /**
+     * Sign for percentage (out of 100).
+     * Example: 23.4%
+     */
+    PercentSign = 3,
+    /**
+     * Sign for positive numbers.
+     * Example: +23
+     */
+    PlusSign = 4,
+    /**
+     * Sign for negative numbers.
+     * Example: -23
+     */
+    MinusSign = 5,
+    /**
+     * Computer notation for exponential value (n times a power of 10).
+     * Example: 1.2E3
+     */
+    Exponential = 6,
+    /**
+     * Human-readable format of exponential.
+     * Example: 1.2x103
+     */
+    SuperscriptingExponent = 7,
+    /**
+     * Sign for permille (out of 1000).
+     * Example: 23.4‰
+     */
+    PerMille = 8,
+    /**
+     * Infinity, can be used with plus and minus.
+     * Example: ∞, +∞, -∞
+     */
+    Infinity = 9,
+    /**
+     * Not a number.
+     * Example: NaN
+     */
+    NaN = 10,
+    /**
+     * Symbol used between time units.
+     * Example: 10:52
+     */
+    TimeSeparator = 11,
+    /**
+     * Decimal separator for currency values (fallback to `Decimal`).
+     * Example: $2,345.67
+     */
+    CurrencyDecimal = 12,
+    /**
+     * Group separator for currency values (fallback to `Group`).
+     * Example: $2,345.67
+     */
+    CurrencyGroup = 13
+}
+
+/**
+ * @description
+ * A {@link LocationStrategy} used to configure the {@link Location} service to
+ * represent its state in the
+ * [path](https://en.wikipedia.org/wiki/Uniform_Resource_Locator#Syntax) of the
+ * browser's URL.
+ *
+ * If you're using `PathLocationStrategy`, you may provide a {@link APP_BASE_HREF}
+ * or add a `<base href>` element to the document to override the default.
+ *
+ * For instance, if you provide an `APP_BASE_HREF` of `'/my/app/'` and call
+ * `location.go('/foo')`, the browser's URL will become
+ * `example.com/my/app/foo`. To ensure all relative URIs resolve correctly,
+ * the `<base href>` and/or `APP_BASE_HREF` should end with a `/`.
+ *
+ * Similarly, if you add `<base href='/my/app/'/>` to the document and call
+ * `location.go('/foo')`, the browser's URL will become
+ * `example.com/my/app/foo`.
+ *
+ * Note that when using `PathLocationStrategy`, neither the query nor
+ * the fragment in the `<base href>` will be preserved, as outlined
+ * by the [RFC](https://tools.ietf.org/html/rfc3986#section-5.2.2).
+ *
+ * @usageNotes
+ *
+ * ### Example
+ *
+ * {@example common/location/ts/path_location_component.ts region='LocationComponent'}
+ *
+ * @publicApi
+ */
+export declare class PathLocationStrategy extends LocationStrategy implements OnDestroy {
+    private _platformLocation;
+    private _baseHref;
+    private _removeListenerFns;
+    constructor(_platformLocation: PlatformLocation, href?: string);
+    /** @nodoc */
+    ngOnDestroy(): void;
+    onPopState(fn: LocationChangeListener): void;
+    getBaseHref(): string;
+    prepareExternalUrl(internal: string): string;
+    path(includeHash?: boolean): string;
+    pushState(state: any, title: string, url: string, queryParams: string): void;
+    replaceState(state: any, title: string, url: string, queryParams: string): void;
+    forward(): void;
+    back(): void;
+    getState(): unknown;
+    historyGo(relativePosition?: number): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<PathLocationStrategy, [null, { optional: true; }]>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<PathLocationStrategy>;
+}
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Transforms a number to a percentage
+ * string, formatted according to locale rules that determine group sizing and
+ * separator, decimal-point character, and other locale-specific
+ * configurations.
+ *
+ * @see {@link formatPercent}
+ *
+ * @usageNotes
+ * The following code shows how the pipe transforms numbers
+ * into text strings, according to various format specifications,
+ * where the caller's default locale is `en-US`.
+ *
+ * <code-example path="common/pipes/ts/percent_pipe.ts" region='PercentPipe'></code-example>
+ *
+ * @publicApi
+ */
+export declare class PercentPipe implements PipeTransform {
+    private _locale;
+    constructor(_locale: string);
+    transform(value: number | string, digitsInfo?: string, locale?: string): string | null;
+    transform(value: null | undefined, digitsInfo?: string, locale?: string): null;
+    transform(value: number | string | null | undefined, digitsInfo?: string, locale?: string): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<PercentPipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<PercentPipe, "percent", true>;
+}
+
+/**
+ * This class should not be used directly by an application developer. Instead, use
+ * {@link Location}.
+ *
+ * `PlatformLocation` encapsulates all calls to DOM APIs, which allows the Router to be
+ * platform-agnostic.
+ * This means that we can have different implementation of `PlatformLocation` for the different
+ * platforms that Angular supports. For example, `@angular/platform-browser` provides an
+ * implementation specific to the browser environment, while `@angular/platform-server` provides
+ * one suitable for use with server-side rendering.
+ *
+ * The `PlatformLocation` class is used directly by all implementations of {@link LocationStrategy}
+ * when they need to interact with the DOM APIs like pushState, popState, etc.
+ *
+ * {@link LocationStrategy} in turn is used by the {@link Location} service which is used directly
+ * by the {@link Router} in order to navigate between routes. Since all interactions between {@link
+ * Router} /
+ * {@link Location} / {@link LocationStrategy} and DOM APIs flow through the `PlatformLocation`
+ * class, they are all platform-agnostic.
+ *
+ * @publicApi
+ */
+export declare abstract class PlatformLocation {
+    abstract getBaseHrefFromDOM(): string;
+    abstract getState(): unknown;
+    /**
+     * Returns a function that, when executed, removes the `popstate` event handler.
+     */
+    abstract onPopState(fn: LocationChangeListener): VoidFunction;
+    /**
+     * Returns a function that, when executed, removes the `hashchange` event handler.
+     */
+    abstract onHashChange(fn: LocationChangeListener): VoidFunction;
+    abstract get href(): string;
+    abstract get protocol(): string;
+    abstract get hostname(): string;
+    abstract get port(): string;
+    abstract get pathname(): string;
+    abstract get search(): string;
+    abstract get hash(): string;
+    abstract replaceState(state: any, title: string, url: string): void;
+    abstract pushState(state: any, title: string, url: string): void;
+    abstract forward(): void;
+    abstract back(): void;
+    historyGo?(relativePosition: number): void;
+    static ɵfac: i0.ɵɵFactoryDeclaration<PlatformLocation, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<PlatformLocation>;
+}
+
+/**
+ * Plurality cases used for translating plurals to different languages.
+ *
+ * @see {@link NgPlural}
+ * @see {@link NgPluralCase}
+ * @see [Internationalization (i18n) Guide](/guide/i18n-overview)
+ *
+ * @publicApi
+ */
+export declare enum Plural {
+    Zero = 0,
+    One = 1,
+    Two = 2,
+    Few = 3,
+    Many = 4,
+    Other = 5
+}
+
+/** @publicApi */
+declare interface PopStateEvent_2 {
+    pop?: boolean;
+    state?: any;
+    type?: string;
+    url?: string;
+}
+export { PopStateEvent_2 as PopStateEvent }
+
+/**
+ * Injection token to configure which origins should be excluded
+ * from the preconnect checks. It can either be a single string or an array of strings
+ * to represent a group of origins, for example:
+ *
+ * ```typescript
+ *  {provide: PRECONNECT_CHECK_BLOCKLIST, useValue: 'https://your-domain.com'}
+ * ```
+ *
+ * or:
+ *
+ * ```typescript
+ *  {provide: PRECONNECT_CHECK_BLOCKLIST,
+ *   useValue: ['https://your-domain-1.com', 'https://your-domain-2.com']}
+ * ```
+ *
+ * @publicApi
+ */
+export declare const PRECONNECT_CHECK_BLOCKLIST: InjectionToken<(string | string[])[]>;
+
+/**
+ * Function that generates an ImageLoader for [Cloudflare Image
+ * Resizing](https://developers.cloudflare.com/images/image-resizing/) and turns it into an Angular
+ * provider. Note: Cloudflare has multiple image products - this provider is specifically for
+ * Cloudflare Image Resizing; it will not work with Cloudflare Images or Cloudflare Polish.
+ *
+ * @param path Your domain name, e.g. https://mysite.com
+ * @returns Provider that provides an ImageLoader function
+ *
+ * @publicApi
+ */
+export declare const provideCloudflareLoader: (path: string) => Provider[];
+
+/**
+ * Function that generates an ImageLoader for Cloudinary and turns it into an Angular provider.
+ *
+ * @param path Base URL of your Cloudinary images
+ * This URL should match one of the following formats:
+ * https://res.cloudinary.com/mysite
+ * https://mysite.cloudinary.com
+ * https://subdomain.mysite.com
+ * @returns Set of providers to configure the Cloudinary loader.
+ *
+ * @publicApi
+ */
+export declare const provideCloudinaryLoader: (path: string) => Provider[];
+
+/**
+ * Function that generates an ImageLoader for ImageKit and turns it into an Angular provider.
+ *
+ * @param path Base URL of your ImageKit images
+ * This URL should match one of the following formats:
+ * https://ik.imagekit.io/myaccount
+ * https://subdomain.mysite.com
+ * @returns Set of providers to configure the ImageKit loader.
+ *
+ * @publicApi
+ */
+export declare const provideImageKitLoader: (path: string) => Provider[];
+
+/**
+ * Function that generates an ImageLoader for Imgix and turns it into an Angular provider.
+ *
+ * @param path path to the desired Imgix origin,
+ * e.g. https://somepath.imgix.net or https://images.mysite.com
+ * @returns Set of providers to configure the Imgix loader.
+ *
+ * @publicApi
+ */
+export declare const provideImgixLoader: (path: string) => Provider[];
+
+
+/**
+ * Register global data to be used internally by Angular. See the
+ * ["I18n guide"](guide/i18n-common-format-data-locale) to know how to import additional locale
+ * data.
+ *
+ * The signature registerLocaleData(data: any, extraData?: any) is deprecated since v5.1
+ *
+ * @publicApi
+ */
+export declare function registerLocaleData(data: any, localeId?: string | any, extraData?: any): void;
+
+/**
+ * Marker interface for a value that's safe to use as HTML.
+ *
+ * @publicApi
+ */
+declare interface SafeHtml extends SafeValue {
+}
+
+/**
+ * Marker interface for a value that's safe to use as a URL to load executable code from.
+ *
+ * @publicApi
+ */
+declare interface SafeResourceUrl extends SafeValue {
+}
+
+/**
+ * Marker interface for a value that's safe to use as JavaScript.
+ *
+ * @publicApi
+ */
+declare interface SafeScript extends SafeValue {
+}
+
+/**
+ * Marker interface for a value that's safe to use as style (CSS).
+ *
+ * @publicApi
+ */
+declare interface SafeStyle extends SafeValue {
+}
+
+/**
+ * Marker interface for a value that's safe to use as a URL linking to a document.
+ *
+ * @publicApi
+ */
+declare interface SafeUrl extends SafeValue {
+}
+
+/**
+ * Marker interface for a value that's safe to use in a particular context.
+ *
+ * @publicApi
+ */
+declare interface SafeValue {
+}
+
+/**
+ * @ngModule CommonModule
+ * @description
+ *
+ * Creates a new `Array` or `String` containing a subset (slice) of the elements.
+ *
+ * @usageNotes
+ *
+ * All behavior is based on the expected behavior of the JavaScript API `Array.prototype.slice()`
+ * and `String.prototype.slice()`.
+ *
+ * When operating on an `Array`, the returned `Array` is always a copy even when all
+ * the elements are being returned.
+ *
+ * When operating on a blank value, the pipe returns the blank value.
+ *
+ * ### List Example
+ *
+ * This `ngFor` example:
+ *
+ * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_list'}
+ *
+ * produces the following:
+ *
+ * ```html
+ * <li>b</li>
+ * <li>c</li>
+ * ```
+ *
+ * ### String Examples
+ *
+ * {@example common/pipes/ts/slice_pipe.ts region='SlicePipe_string'}
+ *
+ * @publicApi
+ */
+export declare class SlicePipe implements PipeTransform {
+    /**
+     * @param value a list or a string to be sliced.
+     * @param start the starting index of the subset to return:
+     *   - **a positive integer**: return the item at `start` index and all items after
+     *     in the list or string expression.
+     *   - **a negative integer**: return the item at `start` index from the end and all items after
+     *     in the list or string expression.
+     *   - **if positive and greater than the size of the expression**: return an empty list or
+     * string.
+     *   - **if negative and greater than the size of the expression**: return entire list or string.
+     * @param end the ending index of the subset to return:
+     *   - **omitted**: return all items until the end.
+     *   - **if positive**: return all items before `end` index of the list or string.
+     *   - **if negative**: return all items before `end` index from the end of the list or string.
+     */
+    transform<T>(value: ReadonlyArray<T>, start: number, end?: number): Array<T>;
+    transform(value: null | undefined, start: number, end?: number): null;
+    transform<T>(value: ReadonlyArray<T> | null | undefined, start: number, end?: number): Array<T> | null;
+    transform(value: string, start: number, end?: number): string;
+    transform(value: string | null | undefined, start: number, end?: number): string | null;
+    private supports;
+    static ɵfac: i0.ɵɵFactoryDeclaration<SlicePipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<SlicePipe, "slice", true>;
+}
+
+declare class SwitchView {
+    private _viewContainerRef;
+    private _templateRef;
+    private _created;
+    constructor(_viewContainerRef: ViewContainerRef, _templateRef: TemplateRef<Object>);
+    create(): void;
+    destroy(): void;
+    enforceState(created: boolean): void;
+}
+
+/**
+ * Represents a time value with hours and minutes.
+ *
+ * @publicApi
+ */
+export declare type Time = {
+    hours: number;
+    minutes: number;
+};
+
+/**
+ * Transforms text to title case.
+ * Capitalizes the first letter of each word and transforms the
+ * rest of the word to lower case.
+ * Words are delimited by any whitespace character, such as a space, tab, or line-feed character.
+ *
+ * @see {@link LowerCasePipe}
+ * @see {@link UpperCasePipe}
+ *
+ * @usageNotes
+ * The following example shows the result of transforming various strings into title case.
+ *
+ * <code-example path="common/pipes/ts/titlecase_pipe.ts" region='TitleCasePipe'></code-example>
+ *
+ * @ngModule CommonModule
+ * @publicApi
+ */
+export declare class TitleCasePipe implements PipeTransform {
+    /**
+     * @param value The string to transform to title case.
+     */
+    transform(value: string): string;
+    transform(value: null | undefined): null;
+    transform(value: string | null | undefined): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<TitleCasePipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<TitleCasePipe, "titlecase", true>;
+}
+
+/**
+ * String widths available for translations.
+ * The specific character widths are locale-specific.
+ * Examples are given for the word "Sunday" in English.
+ *
+ * @publicApi
+ */
+export declare enum TranslationWidth {
+    /** 1 character for `en-US`. For example: 'S' */
+    Narrow = 0,
+    /** 3 characters for `en-US`. For example: 'Sun' */
+    Abbreviated = 1,
+    /** Full length for `en-US`. For example: "Sunday" */
+    Wide = 2,
+    /** 2 characters for `en-US`, For example: "Su" */
+    Short = 3
+}
+
+declare function unwrapSafeValue(value: SafeValue): string;
+
+declare function unwrapSafeValue<T>(value: T): T;
+
+/**
+ * Transforms text to all upper case.
+ * @see {@link LowerCasePipe}
+ * @see {@link TitleCasePipe}
+ *
+ * @ngModule CommonModule
+ * @publicApi
+ */
+export declare class UpperCasePipe implements PipeTransform {
+    /**
+     * @param value The string to transform to upper case.
+     */
+    transform(value: string): string;
+    transform(value: null | undefined): null;
+    transform(value: string | null | undefined): string | null;
+    static ɵfac: i0.ɵɵFactoryDeclaration<UpperCasePipe, never>;
+    static ɵpipe: i0.ɵɵPipeDeclaration<UpperCasePipe, "uppercase", true>;
+}
+
+/**
+ * @publicApi
+ */
+export declare const VERSION: Version;
+
+
+/**
+ * Defines a scroll position manager. Implemented by `BrowserViewportScroller`.
+ *
+ * @publicApi
+ */
+export declare abstract class ViewportScroller {
+    /** @nocollapse */
+    static ɵprov: unknown;
+    /**
+     * Configures the top offset used when scrolling to an anchor.
+     * @param offset A position in screen coordinates (a tuple with x and y values)
+     * or a function that returns the top offset position.
+     *
+     */
+    abstract setOffset(offset: [number, number] | (() => [number, number])): void;
+    /**
+     * Retrieves the current scroll position.
+     * @returns A position in screen coordinates (a tuple with x and y values).
+     */
+    abstract getScrollPosition(): [number, number];
+    /**
+     * Scrolls to a specified position.
+     * @param position A position in screen coordinates (a tuple with x and y values).
+     */
+    abstract scrollToPosition(position: [number, number]): void;
+    /**
+     * Scrolls to an anchor element.
+     * @param anchor The ID of the anchor element.
+     */
+    abstract scrollToAnchor(anchor: string): void;
+    /**
+     * Disables automatic scroll restoration provided by the browser.
+     * See also [window.history.scrollRestoration
+     * info](https://developers.google.com/web/updates/2015/09/history-api-scroll-restoration).
+     */
+    abstract setHistoryScrollRestoration(scrollRestoration: 'auto' | 'manual'): void;
+}
+
+/**
+ * The value for each day of the week, based on the `en-US` locale
+ *
+ * @publicApi
+ */
+export declare enum WeekDay {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6
+}
+
+
+/**
+ * A wrapper around the `XMLHttpRequest` constructor.
+ *
+ * @publicApi
+ */
+export declare abstract class XhrFactory {
+    abstract build(): XMLHttpRequest;
+}
+
+/**
+ * Provides DOM operations in an environment-agnostic way.
+ *
+ * @security Tread carefully! Interacting with the DOM directly is dangerous and
+ * can introduce XSS risks.
+ */
+export declare abstract class ɵDomAdapter {
+    abstract dispatchEvent(el: any, evt: any): any;
+    abstract readonly supportsDOMEvents: boolean;
+    abstract remove(el: any): void;
+    abstract createElement(tagName: any, doc?: any): HTMLElement;
+    abstract createHtmlDocument(): Document;
+    abstract getDefaultDocument(): Document;
+    abstract isElementNode(node: any): boolean;
+    abstract isShadowRoot(node: any): boolean;
+    abstract onAndCancel(el: any, evt: any, listener: any): Function;
+    abstract getGlobalEventTarget(doc: Document, target: string): any;
+    abstract getBaseHref(doc: Document): string | null;
+    abstract resetBaseElement(): void;
+    abstract getUserAgent(): string;
+    abstract getCookie(name: string): string | null;
+}
+
+
+export declare function ɵgetDOM(): ɵDomAdapter;
+
+/**
+ * Provides an empty implementation of the viewport scroller.
+ */
+export declare class ɵNullViewportScroller implements ViewportScroller {
+    /**
+     * Empty implementation
+     */
+    setOffset(offset: [number, number] | (() => [number, number])): void;
+    /**
+     * Empty implementation
+     */
+    getScrollPosition(): [number, number];
+    /**
+     * Empty implementation
+     */
+    scrollToPosition(position: [number, number]): void;
+    /**
+     * Empty implementation
+     */
+    scrollToAnchor(anchor: string): void;
+    /**
+     * Empty implementation
+     */
+    setHistoryScrollRestoration(scrollRestoration: 'auto' | 'manual'): void;
+}
+
+
+export declare function ɵparseCookieValue(cookieStr: string, name: string): string | null;
+
+
+export declare const ɵPLATFORM_BROWSER_ID = "browser";
+
+export declare const ɵPLATFORM_SERVER_ID = "server";
+
+export declare const ɵPLATFORM_WORKER_APP_ID = "browserWorkerApp";
+
+export declare const ɵPLATFORM_WORKER_UI_ID = "browserWorkerUi";
+
+export declare function ɵsetRootDomAdapter(adapter: ɵDomAdapter): void;
 
 export { }
