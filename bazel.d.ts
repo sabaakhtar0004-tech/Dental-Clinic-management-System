@@ -6,9 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * @module
- * @description
- * Entry point for all public APIs of the compiler-cli package.
+ * @fileoverview The API from compiler-cli that the `@angular/bazel`
+ * package requires for ngc-wrapped.
  */
-import { Version } from '@angular/compiler';
-export declare const VERSION: Version;
+export { PerfPhase } from '../src/ngtsc/perf';
